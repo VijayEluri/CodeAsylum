@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>com.codeasylum</groupId>
+   <artifactId>codeasylum</artifactId>
+   <version>0.1</version>
+   <packaging>pom</packaging>
+   <name>Parent</name>
+   <description>Parent POM</description>
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <nexus.release.repository.id>nexus</nexus.release.repository.id>
+      <nexus.release.repository.url>http://${nexus.server}/nexus/content/repositories/releases</nexus.release.repository.url>
+   </properties>
+
+   <distributionManagement>
+      <repository>
+         <id>${nexus.release.repository.id}</id>
+         <name>Nexus Release Repository</name>
+         <url>${nexus.release.repository.url}</url>
+      </repository>
+      <snapshotRepository>
+         <id>${nexus.release.repository.id}</id>
+         <name>Nexus Snapshot Repository</name>
+         <url>http://${nexus.server}/nexus/content/repositories/snapshots</url>
+      </snapshotRepository>
+   </distributionManagement>
+</project>
