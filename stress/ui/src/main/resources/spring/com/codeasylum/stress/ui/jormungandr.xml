@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+  <import resource="classpath:com/codeasylum/stress/api/ouroboros.xml"/>
+
+  <bean id="jormungandr" class="com.codeasylum.stress.ui.Jormungandr">
+    <property name="menuDelegateFactory">
+      <bean class="com.codeasylum.stress.ui.menu.MenuDelegateFactory">
+        <constructor-arg index="0">
+          <map>
+            <entry key="File/New..." value="com.codeasylum.stress.ui.menu.NewDelegate"/>
+            <entry key="File/Open..." value="com.codeasylum.stress.ui.menu.OpenDelegate"/>
+            <entry key="File/Save..." value="com.codeasylum.stress.ui.menu.SaveDelegate"/>
+            <entry key="File/Save As..." value="com.codeasylum.stress.ui.menu.SaveAsDelegate"/>
+            <entry key="Execute/Run..." value="com.codeasylum.stress.ui.menu.RunDelegate"/>
+            <entry key="Execute/Cancel" value="com.codeasylum.stress.ui.menu.CancelDelegate"/>
+          </map>
+        </constructor-arg>
+      </bean>
+    </property>
+    <property name="palette">
+      <bean class="com.codeasylum.stress.ui.TaskPalette">
+        <constructor-arg index="0">
+          <list>
+            <value>com.codeasylum.stress.api.BranchTask</value>
+            <value>com.codeasylum.stress.api.ChoiceTask</value>
+            <value>com.codeasylum.stress.api.DebugTimerTask</value>
+            <value>com.codeasylum.stress.api.DebugWriterTask</value>
+            <value>com.codeasylum.stress.api.DelayTask</value>
+            <value>com.codeasylum.stress.api.FileTask</value>
+            <value>com.codeasylum.stress.api.HttpTask</value>
+            <value>com.codeasylum.stress.api.InfiniteLoopTask</value>
+            <value>com.codeasylum.stress.api.LoopTask</value>
+            <value>com.codeasylum.stress.api.ParallelTask</value>
+            <value>com.codeasylum.stress.api.PropertyTask</value>
+            <value>com.codeasylum.stress.api.ReplicationTask</value>
+            <value>com.codeasylum.stress.api.ScriptedPropertyTask</value>
+            <value>com.codeasylum.stress.api.SerialTask</value>
+            <value>com.codeasylum.stress.api.TimedLoopTask</value>
+          </list>
+        </constructor-arg>
+      </bean>
+    </property>
+  </bean>
+
+</beans>
