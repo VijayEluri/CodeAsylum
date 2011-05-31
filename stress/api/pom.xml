@@ -38,11 +38,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>info.monitorenter</groupId>
       <artifactId>jchart2d</artifactId>
       <scope>compile</scope>
@@ -50,6 +45,7 @@
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-json</artifactId>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
   <build>
