@@ -38,6 +38,11 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>info.monitorenter</groupId>
       <artifactId>jchart2d</artifactId>
       <scope>compile</scope>
