@@ -92,6 +92,7 @@ public class RootTaskMonitorPanel extends JPanel implements ChangeListener, Acti
   private MonitorStatistics monitorStatistics;
   private Chart2D responseTimeChart;
   private Chart2D requestCountChart;
+  private Chart2D failureCountChart;
   private PerSecondTimedTrace failureTrace;
   private PerSecondTimeRangePolicy responseTimeRangePolicy;
   private PerSecondTimeRangePolicy requestCountRangePolicy;
@@ -112,7 +113,6 @@ public class RootTaskMonitorPanel extends JPanel implements ChangeListener, Acti
 
     JPanel innerPanel;
     GroupLayout groupLayout;
-    Chart2D failureCountChart;
     AAxis responseTimeYAxis;
     AAxis requestCountYAxis;
     AAxis failureCountYAxis;
@@ -454,6 +454,7 @@ public class RootTaskMonitorPanel extends JPanel implements ChangeListener, Acti
 
     responseTimeChart.setRequestedRepaint(true);
     requestCountChart.setRequestedRepaint(true);
+    failureCountChart.setRequestedRepaint(true);
   }
 
   @Override

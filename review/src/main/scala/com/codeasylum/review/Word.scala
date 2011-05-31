@@ -7,7 +7,7 @@ class Word (val original: String) {
   def canEqual (other: Any): Boolean = other.isInstanceOf[Word]
 
   override def equals (other: Any): Boolean = other match {
-    case that: Word => original == that.original
+    case word: Word => original == word.original
     case _ => false
   }
 }
