@@ -162,7 +162,6 @@ public class MapConfigPanel extends JPanel implements KeyListener, ActionListene
   @Override
   public void setEnabled (boolean enabled) {
 
-    addButton.setEnabled(enabled);
     addKeyTextField.setEnabled(enabled);
     addValueTextField.setEnabled(enabled);
   }

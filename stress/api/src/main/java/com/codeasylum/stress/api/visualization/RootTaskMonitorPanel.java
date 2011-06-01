@@ -156,7 +156,7 @@ public class RootTaskMonitorPanel extends JPanel implements ChangeListener, Acti
     failureCountLabel.setForeground(ColorUtilities.TEXT_COLOR);
     failureCountLabel.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, ColorUtilities.INVERSE_TEXT_COLOR));
 
-    averageResponseTimeLabel = new JLabel("Avg. Response Time (ms/s):");
+    averageResponseTimeLabel = new JLabel("Avg. Response Time (ms):");
     averageRequestCountLabel = new JLabel("Avg. Number of Requests (#/s):");
     averageFailureCountLabel = new JLabel("Avg. Number of Failures (#/s):");
     totalFailureCountLabel = new JLabel("Total Number of Failures (#):");
