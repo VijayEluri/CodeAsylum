@@ -50,7 +50,6 @@ public class RemoteServiceExporter extends RmiBasedExporter implements Initializ
   private RMIServerSocketFactory registryServerSocketFactory;
   private String serviceName;
   private String registryHost;
-  private int servicePort = 0;  // anonymous port
   private int registryPort = Registry.REGISTRY_PORT;
   private boolean alwaysCreateRegistry = false;
   private boolean replaceExistingBinding = true;
@@ -59,11 +58,6 @@ public class RemoteServiceExporter extends RmiBasedExporter implements Initializ
   public void setServiceName (String serviceName) {
 
     this.serviceName = serviceName;
-  }
-
-  public void setServicePort (int servicePort) {
-
-    this.servicePort = servicePort;
   }
 
   public void setClientSocketFactory (RMIClientSocketFactory clientSocketFactory) {
