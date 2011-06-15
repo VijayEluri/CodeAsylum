@@ -1,1 +1,1 @@
-[[CodeAsylum Wiki|https://github.com/zenbones/CodeAsylum/wiki]]
+[[http://github.com/zenbones/CodeAsylum/wiki|CodeAsylum Wiki]]
