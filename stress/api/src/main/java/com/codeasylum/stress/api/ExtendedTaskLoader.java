@@ -40,18 +40,20 @@ public class ExtendedTaskLoader extends ExtensionLoader<TaskExtender> {
 
     super(TaskExtender.class, "jormungandr-extension.xml");
 
-    if ((getExtensionInstance().getPalette() != null) && (getExtensionInstance().getPalette().length > 0)) {
+    if (getExtensionInstance() != null) {
+      if ((getExtensionInstance().getPalette() != null) && (getExtensionInstance().getPalette().length > 0)) {
 
-      int paletteIndex = 0;
+        int paletteIndex = 0;
 
-      extendedPalette = new Class[getExtensionInstance().getPalette().length];
-      try {
-        for (String extendedPaletteClassName : getExtensionInstance().getPalette()) {
-          extendedPalette[paletteIndex++] = (Class<? extends Task>)Thread.currentThread().getContextClassLoader().loadClass(extendedPaletteClassName);
+        extendedPalette = new Class[getExtensionInstance().getPalette().length];
+        try {
+          for (String extendedPaletteClassName : getExtensionInstance().getPalette()) {
+            extendedPalette[paletteIndex++] = (Class<? extends Task>)Thread.currentThread().getContextClassLoader().loadClass(extendedPaletteClassName);
+          }
         }
-      }
-      catch (ClassNotFoundException classNotFoundException) {
-        throw new ExtensionLoaderException(classNotFoundException);
+        catch (ClassNotFoundException classNotFoundException) {
+          throw new ExtensionLoaderException(classNotFoundException);
+        }
       }
     }
 
