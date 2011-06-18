@@ -5,7 +5,7 @@
 
   <bean id="jormungandr" class="com.codeasylum.stress.ui.Jormungandr">
     <property name="menuDelegateFactory">
-      <bean class="com.codeasylum.stress.ui.menu.MenuDelegateFactory">
+      <bean class="org.smallmind.swing.menu.MenuDelegateFactory">
         <constructor-arg index="0">
           <map>
             <entry key="File/New..." value="com.codeasylum.stress.ui.menu.NewDelegate"/>

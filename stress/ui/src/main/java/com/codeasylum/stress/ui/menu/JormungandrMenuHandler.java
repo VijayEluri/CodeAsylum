@@ -36,7 +36,6 @@ import com.codeasylum.stress.api.TestExecutor;
 import com.codeasylum.stress.api.TestPlan;
 import com.codeasylum.stress.ui.Jormungandr;
 import com.codeasylum.stress.ui.TaskPalette;
-import org.smallmind.swing.dialog.JavaErrorDialog;
 import org.smallmind.swing.menu.MenuActionProvider;
 import org.smallmind.swing.menu.MenuDelegateFactory;
 import org.smallmind.swing.menu.MenuHandler;
@@ -54,13 +53,6 @@ public class JormungandrMenuHandler extends MenuHandler implements ActionListene
     super(jormungandr, menuDelegateFactory, new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("com/codeasylum/stress/ui/menu.xml")));
 
     this.jormungandr = jormungandr;
-
-    try {
-
-    }
-    catch (Exception exception) {
-      JavaErrorDialog.showJavaErrorDialog(jormungandr, this, exception);
-    }
   }
 
   public JFrame getParentFrame () {

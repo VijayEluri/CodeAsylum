@@ -267,6 +267,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
 
           }
         });
+
         jormungandr.init().setVisible(true);
       }
       catch (Exception exception) {

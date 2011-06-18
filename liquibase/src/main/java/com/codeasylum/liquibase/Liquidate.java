@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- * 
+ *
  * This file is part of the CodeAsylum Code Project.
- * 
+ *
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- * 
+ *
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- * 
+ *
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -29,6 +29,9 @@ package com.codeasylum.liquibase;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.Enumeration;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -41,17 +44,22 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.xml.parsers.ParserConfigurationException;
 import org.smallmind.liquibase.spring.Goal;
 import org.smallmind.liquibase.spring.Source;
 import org.smallmind.liquibase.spring.SpringLiquibase;
 import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.orm.sql.DriverManagerDataSource;
 import org.smallmind.swing.dialog.JavaErrorDialog;
+import org.smallmind.swing.menu.MenuDelegateFactory;
 import org.smallmind.swing.menu.MenuHandler;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class Liquidate extends JFrame implements ActionListener {
 
-  private MenuHandler menuHandler;
+  private MenuDelegateFactory menuDelegateFactory;
   private JComboBox databaseCombo;
   private ButtonGroup sourceButtonGroup;
   private ButtonGroup goalButtonGroup;
@@ -87,6 +95,7 @@ public class Liquidate extends JFrame implements ActionListener {
     int goalIndex = 0;
 
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
     setLayout(layout = new GroupLayout(getContentPane()));
 
     databaseLabel = new JLabel("Database:");
@@ -167,7 +176,7 @@ public class Liquidate extends JFrame implements ActionListener {
       .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(userLabel).addComponent(userTextField)).addGap(8)
       .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(passwordLabel).addComponent(passwordField)).addGap(8)
       .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(sourceLabel).addGroup(sourceVerticalGroup = layout.createParallelGroup())).addGap(8)
-      .addComponent(logTextField).addGap(8)
+      .addComponent(logTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addGap(8)
       .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(goalLabel).addComponent(goalButtons[0])));
 
     for (JRadioButton sourceButton : sourceButtons) {
@@ -180,8 +189,17 @@ public class Liquidate extends JFrame implements ActionListener {
 
     goalVerticalGroup.addGap(15).addComponent(buttonSeparator).addGap(8).addComponent(startButton);
 
-    setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 120, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 35));
+    setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 120, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 50));
+    setResizable(false);
     setLocationByPlatform(true);
+  }
+
+  private Liquidate init ()
+    throws IOException, SAXException, ParserConfigurationException {
+
+    new MenuHandler(this, menuDelegateFactory, new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("com/codeasylum/liquibase/menu.xml")));
+
+    return this;
   }
 
   public void actionPerformed (ActionEvent actionEvent) {
@@ -206,6 +224,11 @@ public class Liquidate extends JFrame implements ActionListener {
 
     this.setVisible(false);
     this.dispose();
+  }
+
+  public synchronized void setMenuDelegateFactory (MenuDelegateFactory menuDelegateFactory) {
+
+    this.menuDelegateFactory = menuDelegateFactory;
   }
 
   public void setDatabase (Database database) {
@@ -271,11 +294,10 @@ public class Liquidate extends JFrame implements ActionListener {
 
   public static void main (String... args) {
 
-    ExtendedProfileLoader extendedProfileLoader;
     boolean init = false;
 
     try {
-      extendedProfileLoader = new ExtendedProfileLoader();
+      new ExtendedProfileLoader();
       init = true;
     }
     catch (Exception exception) {
@@ -284,10 +306,22 @@ public class Liquidate extends JFrame implements ActionListener {
 
     if (init) {
 
-      Liquidate liquidate = new Liquidate();
+      final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("com/codeasylum/liquibase/liquidate.xml");
+
+      Liquidate liquidate = applicationContext.getBean("liquidate", Liquidate.class);
 
       try {
-        liquidate.setVisible(true);
+        liquidate.addWindowListener(new WindowAdapter() {
+
+          @Override
+          public void windowClosed (WindowEvent windowEvent) {
+
+            applicationContext.close();
+
+          }
+        });
+
+        liquidate.init().setVisible(true);
       }
       catch (Exception exception) {
         JavaErrorDialog.showJavaErrorDialog(liquidate, liquidate, exception);

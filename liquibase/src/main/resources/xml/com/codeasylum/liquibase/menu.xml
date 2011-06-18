@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu-layout xmlns="http://www.smallmind.org/schema/swing/menu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.smallmind.org/schema/swing/menu http://www.smallmind.org/schema/swing/smallmind-menu-1.0.xsd">
+  <menu-bar>
+    <menu text="File" mnemonic="F">
+      <menu-item>
+        <definition text="New..." mnemonic="N"/>
+      </menu-item>
+      <menu-item>
+        <definition text="Open..." mnemonic="O"/>
+      </menu-item>
+      <menu-item>
+        <definition text="Save..." mnemonic="S"/>
+      </menu-item>
+      <menu-item>
+        <definition text="Save As..." mnemonic="A"/>
+      </menu-item>
+    </menu>
+  </menu-bar>
+</menu-layout>
