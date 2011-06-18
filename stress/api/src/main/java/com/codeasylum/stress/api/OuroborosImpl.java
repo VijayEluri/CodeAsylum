@@ -99,13 +99,12 @@ public class OuroborosImpl extends UnicastRemoteObject implements Ouroboros {
     Naming.unbind(Ouroboros.class.getName());
   }
 
-  public static void main (String... args)
-    throws TaskExtensionException {
+  public static void main (String... args) {
 
     boolean init = false;
 
     try {
-      ExtendedTaskLoader.init();
+      new ExtendedTaskLoader();
       init = true;
     }
     catch (Exception exception) {

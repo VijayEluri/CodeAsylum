@@ -26,7 +26,9 @@
  */
 package com.codeasylum.stress.api;
 
-public class TaskExtender {
+import org.smallmind.nutsnbolts.spring.ExtensionInstance;
+
+public class TaskExtender implements ExtensionInstance {
 
   private String[] classpathComponents;
   private String[] palette;

@@ -24,47 +24,16 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.stress.api;
+package com.codeasylum.liquibase;
 
 import org.smallmind.nutsnbolts.spring.ExtensionLoader;
 import org.smallmind.nutsnbolts.spring.ExtensionLoaderException;
 
-public class ExtendedTaskLoader extends ExtensionLoader<TaskExtender> {
+public class ExtendedProfileLoader extends ExtensionLoader<ProfileExtender> {
 
-  private static ThreadLocal<ExtendedTaskLoader> EXTENDED_TASK_LOADER_LOCAL = new ThreadLocal<ExtendedTaskLoader>();
-
-  private Class<? extends Task>[] extendedPalette;
-
-  public ExtendedTaskLoader ()
+  public ExtendedProfileLoader ()
     throws ExtensionLoaderException {
 
-    super(TaskExtender.class, "jormungandr-extension.xml");
-
-    if ((getExtensionInstance().getPalette() != null) && (getExtensionInstance().getPalette().length > 0)) {
-
-      int paletteIndex = 0;
-
-      extendedPalette = new Class[getExtensionInstance().getPalette().length];
-      try {
-        for (String extendedPaletteClassName : getExtensionInstance().getPalette()) {
-          extendedPalette[paletteIndex++] = (Class<? extends Task>)Thread.currentThread().getContextClassLoader().loadClass(extendedPaletteClassName);
-        }
-      }
-      catch (ClassNotFoundException classNotFoundException) {
-        throw new ExtensionLoaderException(classNotFoundException);
-      }
-    }
-
-    EXTENDED_TASK_LOADER_LOCAL.set(this);
-  }
-
-  private Class<? extends Task>[] getExtendedPaletteInternal () {
-
-    return extendedPalette;
-  }
-
-  public static Class<? extends Task>[] getExtendedPalette () {
-
-    return EXTENDED_TASK_LOADER_LOCAL.get().getExtendedPaletteInternal();
+    super(ProfileExtender.class, "liquidate-extension.xml");
   }
 }

@@ -46,6 +46,7 @@ import org.smallmind.liquibase.spring.Source;
 import org.smallmind.liquibase.spring.SpringLiquibase;
 import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.orm.sql.DriverManagerDataSource;
+import org.smallmind.swing.dialog.JavaErrorDialog;
 
 public class Liquidate extends JFrame implements ActionListener {
 
@@ -268,6 +269,28 @@ public class Liquidate extends JFrame implements ActionListener {
 
   public static void main (String... args) {
 
-    new Liquidate().setVisible(true);
+    ExtendedProfileLoader extendedProfileLoader;
+    boolean init = false;
+
+    try {
+      extendedProfileLoader = new ExtendedProfileLoader();
+      init = true;
+    }
+    catch (Exception exception) {
+      JavaErrorDialog.showJavaErrorDialog(null, null, exception);
+    }
+
+    if (init) {
+
+      Liquidate liquidate = new Liquidate();
+
+      try {
+        liquidate.setVisible(true);
+      }
+      catch (Exception exception) {
+        JavaErrorDialog.showJavaErrorDialog(liquidate, liquidate, exception);
+        liquidate.dispose();
+      }
+    }
   }
 }

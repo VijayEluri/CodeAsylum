@@ -38,7 +38,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import com.codeasylum.stress.api.ExtendedTaskLoader;
 import com.codeasylum.stress.api.RootTask;
-import com.codeasylum.stress.api.TaskExtensionException;
 import com.codeasylum.stress.api.TestExecutor;
 import com.codeasylum.stress.api.TestExecutorEvent;
 import com.codeasylum.stress.api.TestExecutorListener;
@@ -237,13 +236,12 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
 
   }
 
-  public static void main (String... args)
-    throws TaskExtensionException {
+  public static void main (String... args) {
 
     boolean init = false;
 
     try {
-      ExtendedTaskLoader.init();
+      new ExtendedTaskLoader();
       init = true;
     }
     catch (Exception exception) {

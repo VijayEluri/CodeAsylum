@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.codeasylum</groupId>
     <artifactId>codeasylum</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
   </parent>
   <artifactId>codeasylum-liquibase</artifactId>
   <packaging>jar</packaging>
@@ -24,7 +24,17 @@
     </dependency>
     <dependency>
       <groupId>org.smallmind</groupId>
+      <artifactId>smallmind-swing</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.smallmind</groupId>
       <artifactId>smallmind-liquibase</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>

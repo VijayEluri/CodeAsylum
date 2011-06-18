@@ -24,29 +24,21 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.stress.api;
+package com.codeasylum.liquibase;
 
-import org.smallmind.nutsnbolts.lang.FormattedException;
+import org.smallmind.nutsnbolts.spring.ExtensionInstance;
 
-public class TaskExtensionException extends FormattedException {
+public class ProfileExtender implements ExtensionInstance {
 
-  public TaskExtensionException () {
+  private String[] classpathComponents;
 
-    super();
+  public String[] getClasspathComponents () {
+
+    return classpathComponents;
   }
 
-  public TaskExtensionException (String message, Object... args) {
+  public void setClasspathComponents (String[] classpathComponents) {
 
-    super(message, args);
-  }
-
-  public TaskExtensionException (Throwable throwable, String message, Object... args) {
-
-    super(throwable, message, args);
-  }
-
-  public TaskExtensionException (Throwable throwable) {
-
-    super(throwable);
+    this.classpathComponents = classpathComponents;
   }
 }
