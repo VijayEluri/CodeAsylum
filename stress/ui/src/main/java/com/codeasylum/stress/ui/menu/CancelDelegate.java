@@ -27,12 +27,14 @@
 package com.codeasylum.stress.ui.menu;
 
 import com.codeasylum.stress.api.TestControl;
+import org.smallmind.swing.menu.MenuDelegate;
+import org.smallmind.swing.menu.MenuHandler;
 
 public class CancelDelegate implements MenuDelegate {
 
   @Override
   public void execute (MenuHandler menuHandler) {
 
-    TestControl.cancel(this, menuHandler.getParentFrame(), menuHandler.getTestExecutor());
+    TestControl.cancel(this, menuHandler.getParentFrame(), ((JormungandrMenuHandler)menuHandler).getTestExecutor());
   }
 }

@@ -47,9 +47,11 @@ import org.smallmind.liquibase.spring.SpringLiquibase;
 import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.orm.sql.DriverManagerDataSource;
 import org.smallmind.swing.dialog.JavaErrorDialog;
+import org.smallmind.swing.menu.MenuHandler;
 
 public class Liquidate extends JFrame implements ActionListener {
 
+  private MenuHandler menuHandler;
   private JComboBox databaseCombo;
   private ButtonGroup sourceButtonGroup;
   private ButtonGroup goalButtonGroup;

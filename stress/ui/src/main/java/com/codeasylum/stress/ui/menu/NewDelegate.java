@@ -29,23 +29,25 @@ package com.codeasylum.stress.ui.menu;
 import com.codeasylum.stress.api.RootTask;
 import com.codeasylum.stress.api.TestPlan;
 import org.smallmind.swing.dialog.JavaErrorDialog;
+import org.smallmind.swing.menu.MenuDelegate;
+import org.smallmind.swing.menu.MenuHandler;
 
 public class NewDelegate implements MenuDelegate {
 
   @Override
   public void execute (MenuHandler menuHandler) {
 
-    if (menuHandler.getJdrFile() != null) {
+    if (((JormungandrMenuHandler)menuHandler).getJdrFile() != null) {
     }
 
     try {
 
       TestPlan testPlan;
 
-      menuHandler.setJdrFile(null);
+      ((JormungandrMenuHandler)menuHandler).setJdrFile(null);
       testPlan = new TestPlan();
-      testPlan.getRootTask().setName(menuHandler.getPalette().getAvatar(RootTask.class).getName());
-      menuHandler.setTestPlan(testPlan);
+      testPlan.getRootTask().setName(((JormungandrMenuHandler)menuHandler).getPalette().getAvatar(RootTask.class).getName());
+      ((JormungandrMenuHandler)menuHandler).setTestPlan(testPlan);
     }
     catch (Exception exception) {
       JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);

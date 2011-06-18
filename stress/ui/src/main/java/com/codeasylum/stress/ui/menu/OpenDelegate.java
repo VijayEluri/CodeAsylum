@@ -33,13 +33,15 @@ import org.smallmind.nutsnbolts.io.ExtensionFileFilter;
 import org.smallmind.swing.dialog.JavaErrorDialog;
 import org.smallmind.swing.file.FileChooserDialog;
 import org.smallmind.swing.file.FileChooserState;
+import org.smallmind.swing.menu.MenuDelegate;
+import org.smallmind.swing.menu.MenuHandler;
 
 public class OpenDelegate implements MenuDelegate {
 
   @Override
   public void execute (MenuHandler menuHandler) {
 
-    FileChooserDialog fileChooser = new FileChooserDialog(menuHandler.getParentFrame(), FileChooserState.OPEN, (menuHandler.getJdrFile() == null) ? null : menuHandler.getJdrFile().getParentFile(), new ExtensionFileFilter("Jormungandr Test Case", "jdr"));
+    FileChooserDialog fileChooser = new FileChooserDialog(menuHandler.getParentFrame(), FileChooserState.OPEN, (((JormungandrMenuHandler)menuHandler).getJdrFile() == null) ? null : ((JormungandrMenuHandler)menuHandler).getJdrFile().getParentFile(), new ExtensionFileFilter("Jormungandr Test Case", "jdr"));
 
     fileChooser.setVisible(true);
 
@@ -50,10 +52,10 @@ public class OpenDelegate implements MenuDelegate {
 
       try {
         jdrReader = new FileReader(fileChooser.getChosenFile());
-        menuHandler.setTestPlan((TestPlan)xstream.fromXML(jdrReader));
+        ((JormungandrMenuHandler)menuHandler).setTestPlan((TestPlan)xstream.fromXML(jdrReader));
         jdrReader.close();
 
-        menuHandler.setJdrFile(fileChooser.getChosenFile());
+        ((JormungandrMenuHandler)menuHandler).setJdrFile(fileChooser.getChosenFile());
       }
       catch (Exception exception) {
         JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);

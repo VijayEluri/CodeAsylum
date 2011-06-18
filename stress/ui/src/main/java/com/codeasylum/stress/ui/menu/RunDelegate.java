@@ -27,12 +27,14 @@
 package com.codeasylum.stress.ui.menu;
 
 import com.codeasylum.stress.api.TestControl;
+import org.smallmind.swing.menu.MenuDelegate;
+import org.smallmind.swing.menu.MenuHandler;
 
 public class RunDelegate implements MenuDelegate {
 
   @Override
   public synchronized void execute (MenuHandler menuHandler) {
 
-    TestControl.execute(this, menuHandler.getParentFrame(), menuHandler.getTestExecutor());
+    TestControl.execute(this, menuHandler.getParentFrame(), ((JormungandrMenuHandler)menuHandler).getTestExecutor());
   }
 }

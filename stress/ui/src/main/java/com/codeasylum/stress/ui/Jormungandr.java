@@ -30,32 +30,35 @@ import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.xml.parsers.ParserConfigurationException;
 import com.codeasylum.stress.api.ExtendedTaskLoader;
 import com.codeasylum.stress.api.RootTask;
 import com.codeasylum.stress.api.TestExecutor;
 import com.codeasylum.stress.api.TestExecutorEvent;
 import com.codeasylum.stress.api.TestExecutorListener;
 import com.codeasylum.stress.api.TestPlan;
-import com.codeasylum.stress.ui.menu.MenuDelegateFactory;
-import com.codeasylum.stress.ui.menu.MenuHandler;
+import com.codeasylum.stress.ui.menu.JormungandrMenuHandler;
 import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
 import org.smallmind.swing.dialog.JavaErrorDialog;
 import org.smallmind.swing.dialog.OptionType;
 import org.smallmind.swing.dialog.YesNoCancelDialog;
 import org.smallmind.swing.dragndrop.GhostPanel;
+import org.smallmind.swing.menu.MenuDelegateFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.xml.sax.SAXException;
 
 public class Jormungandr extends JFrame implements WindowListener, TestExecutorListener {
 
   private MenuDelegateFactory menuDelegateFactory;
   private TaskPalette palette;
-  private MenuHandler menuHandler;
+  private JormungandrMenuHandler menuHandler;
   private PalettePanel palettePanel;
   private TestPanel testPanel;
   private TestExecutor testExecutor;
@@ -66,7 +69,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
   }
 
   private synchronized Jormungandr init ()
-    throws RemoteException {
+    throws RemoteException, IOException, SAXException, ParserConfigurationException {
 
     TestPlan testPlan;
     GhostPanel ghostPanel;
@@ -79,7 +82,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
 
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-    menuHandler = new MenuHandler(this, menuDelegateFactory);
+    menuHandler = new JormungandrMenuHandler(this, menuDelegateFactory);
 
     testExecutor = new TestExecutor(testPlan = new TestPlan());
     testExecutor.addTestExecutorListener(this);
@@ -128,7 +131,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
     this.palette = palette;
   }
 
-  public MenuHandler getMenuHandler () {
+  public JormungandrMenuHandler getMenuHandler () {
 
     return menuHandler;
   }

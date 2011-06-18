@@ -26,37 +26,37 @@
  */
 package com.codeasylum.stress.ui.menu;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
-import javax.swing.Action;
 import javax.swing.JFrame;
+import javax.xml.parsers.ParserConfigurationException;
 import com.codeasylum.stress.api.TestExecutor;
 import com.codeasylum.stress.api.TestPlan;
 import com.codeasylum.stress.ui.Jormungandr;
 import com.codeasylum.stress.ui.TaskPalette;
 import org.smallmind.swing.dialog.JavaErrorDialog;
 import org.smallmind.swing.menu.MenuActionProvider;
-import org.smallmind.swing.menu.MenuModel;
-import org.smallmind.swing.menu.MenuXmlParser;
+import org.smallmind.swing.menu.MenuDelegateFactory;
+import org.smallmind.swing.menu.MenuHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-public class MenuHandler implements ActionListener, MenuActionProvider {
+public class JormungandrMenuHandler extends MenuHandler implements ActionListener, MenuActionProvider {
 
   private Jormungandr jormungandr;
-  private MenuModel menuModel;
-  private MenuDelegateFactory menuDelegateFactory;
   private File jdrFile;
 
-  public MenuHandler (Jormungandr jormungandr, MenuDelegateFactory menuDelegateFactory) {
+  public JormungandrMenuHandler (Jormungandr jormungandr, MenuDelegateFactory menuDelegateFactory)
+    throws IOException, SAXException, ParserConfigurationException {
+
+    super(jormungandr, menuDelegateFactory, new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("com/codeasylum/stress/ui/menu.xml")));
 
     this.jormungandr = jormungandr;
-    this.menuDelegateFactory = menuDelegateFactory;
 
     try {
-      menuModel = MenuXmlParser.parse(new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("com/codeasylum/stress/ui/menu.xml")), this);
-      jormungandr.setJMenuBar(menuModel.getMenuBar(0));
+
     }
     catch (Exception exception) {
       JavaErrorDialog.showJavaErrorDialog(jormungandr, this, exception);
@@ -92,33 +92,5 @@ public class MenuHandler implements ActionListener, MenuActionProvider {
   public void setJdrFile (File jdrFile) {
 
     this.jdrFile = jdrFile;
-  }
-
-  public MenuDelegate getDelegate (String menuPath) {
-
-    return menuDelegateFactory.getDelegate(menuPath);
-  }
-
-  public void setEnabled (String menuPath, boolean enabled) {
-
-    menuModel.getMenuItem(menuPath).setEnabled(enabled);
-  }
-
-  @Override
-  public void actionPerformed (ActionEvent actionEvent) {
-
-    getDelegate(actionEvent.getActionCommand()).execute(this);
-  }
-
-  @Override
-  public ActionListener getDefaultActionListener () {
-
-    return this;
-  }
-
-  @Override
-  public Action getAction (String className) {
-
-    throw new UnsupportedOperationException();
   }
 }

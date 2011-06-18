@@ -29,25 +29,27 @@ package com.codeasylum.stress.ui.menu;
 import java.io.FileWriter;
 import com.thoughtworks.xstream.XStream;
 import org.smallmind.swing.dialog.JavaErrorDialog;
+import org.smallmind.swing.menu.MenuDelegate;
+import org.smallmind.swing.menu.MenuHandler;
 
 public class SaveDelegate implements MenuDelegate {
 
   @Override
   public void execute (MenuHandler menuHandler) {
 
-    if (menuHandler.getJdrFile() == null) {
+    if (((JormungandrMenuHandler)menuHandler).getJdrFile() == null) {
       menuHandler.getDelegate("File/Save As...").execute(menuHandler);
     }
     else {
-      if (menuHandler.getJdrFile() != null) {
+      if (((JormungandrMenuHandler)menuHandler).getJdrFile() != null) {
         XStream xstream = new XStream();
         FileWriter jdrWriter;
 
         try {
-          jdrWriter = new FileWriter(menuHandler.getJdrFile());
-          xstream.toXML(menuHandler.getTestExecutor().getTestPlan(), jdrWriter);
+          jdrWriter = new FileWriter(((JormungandrMenuHandler)menuHandler).getJdrFile());
+          xstream.toXML(((JormungandrMenuHandler)menuHandler).getTestExecutor().getTestPlan(), jdrWriter);
           jdrWriter.close();
-          menuHandler.getTestExecutor().getTestPlan().setChanged(false);
+          ((JormungandrMenuHandler)menuHandler).getTestExecutor().getTestPlan().setChanged(false);
         }
         catch (Exception exception) {
           JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);

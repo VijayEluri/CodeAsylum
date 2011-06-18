@@ -30,22 +30,24 @@ import java.io.File;
 import org.smallmind.nutsnbolts.io.ExtensionFileFilter;
 import org.smallmind.swing.file.FileChooserDialog;
 import org.smallmind.swing.file.FileChooserState;
+import org.smallmind.swing.menu.MenuDelegate;
+import org.smallmind.swing.menu.MenuHandler;
 
 public class SaveAsDelegate implements MenuDelegate {
 
   @Override
   public void execute (MenuHandler menuHandler) {
 
-    FileChooserDialog fileChooser = new FileChooserDialog(menuHandler.getParentFrame(), FileChooserState.SAVE, (menuHandler.getJdrFile() == null) ? null : menuHandler.getJdrFile().getParentFile(), new ExtensionFileFilter("Jormungandr Test Case", "jdr"));
+    FileChooserDialog fileChooser = new FileChooserDialog(menuHandler.getParentFrame(), FileChooserState.SAVE, (((JormungandrMenuHandler)menuHandler).getJdrFile() == null) ? null : ((JormungandrMenuHandler)menuHandler).getJdrFile().getParentFile(), new ExtensionFileFilter("Jormungandr Test Case", "jdr"));
 
     fileChooser.setVisible(true);
 
     if (fileChooser.getChosenFile() != null) {
       if (!fileChooser.getChosenFile().getName().endsWith(".jdr")) {
-        menuHandler.setJdrFile(new File(fileChooser.getChosenFile().getAbsolutePath() + ".jdr"));
+        ((JormungandrMenuHandler)menuHandler).setJdrFile(new File(fileChooser.getChosenFile().getAbsolutePath() + ".jdr"));
       }
       else {
-        menuHandler.setJdrFile(fileChooser.getChosenFile());
+        ((JormungandrMenuHandler)menuHandler).setJdrFile(fileChooser.getChosenFile());
       }
 
       menuHandler.getDelegate("File/Save...").execute(menuHandler);
