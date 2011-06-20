@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- *
+ * 
  * This file is part of the CodeAsylum Code Project.
- *
+ * 
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- *
+ * 
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
+ * 
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- *
+ * 
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -189,7 +189,7 @@ public class Liquidate extends JFrame implements ActionListener {
 
     goalVerticalGroup.addGap(15).addComponent(buttonSeparator).addGap(8).addComponent(startButton);
 
-    setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 120, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 50));
+    setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 150, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 50));
     setResizable(false);
     setLocationByPlatform(true);
   }
@@ -219,7 +219,7 @@ public class Liquidate extends JFrame implements ActionListener {
       springLiquibase.afterPropertiesSet();
     }
     catch (Exception exception) {
-      throw new RuntimeException(exception);
+      JavaErrorDialog.showJavaErrorDialog(this, this, exception);
     }
 
     this.setVisible(false);
