@@ -101,6 +101,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
 
     workSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, testScrollPane, viewPanel);
     workSplitPane.setDoubleBuffered(true);
+    workSplitPane.setContinuousLayout(true);
     workSplitPane.setResizeWeight(0.3);
 
     groupLayout.setAutoCreateContainerGaps(true);
