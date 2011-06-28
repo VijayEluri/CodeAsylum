@@ -38,8 +38,9 @@ public class HttpFormatterFactory {
   public Formatter getFormatter (String contentType) {
 
     Formatter formatter;
+    int semicolonPos;
 
-    if ((formatter = formatterMap.get(contentType)) == null) {
+    if ((formatter = formatterMap.get(((semicolonPos = contentType.indexOf(';')) < 0) ? contentType : contentType.substring(0, semicolonPos))) == null) {
       formatter = DEFAULT_FORMATTER;
     }
 
