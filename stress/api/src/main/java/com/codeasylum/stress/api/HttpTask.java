@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- * 
+ *
  * This file is part of the CodeAsylum Code Project.
- * 
+ *
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- * 
+ *
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- * 
+ *
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -188,9 +188,12 @@ public class HttpTask extends AbstractTask {
       URI requestURI;
       StringBuilder uriBuilder;
       String requestContentType;
+      String mimeType;
+      String charSet;
       String requestBody;
       boolean validated = true;
       long startTime;
+      int semiColonPos;
 
       if ((portAttribute.getScript() == null) || (portAttribute.getScript().length() == 0)) {
         throw new TaskExecutionException("The %s(%s) has no http port value configured", HttpTask.class.getSimpleName(), getName());
@@ -202,6 +205,20 @@ public class HttpTask extends AbstractTask {
       }
       catch (URISyntaxException uriSyntaxException) {
         throw new TaskExecutionException(uriSyntaxException, "The %s(%s) has been configured with a malformed URI(%s)", HttpTask.class.getSimpleName(), getName(), uriBuilder.toString());
+      }
+
+      if ((mimeType = contentTypeAttribute.get(this)) != null) {
+        if ((semiColonPos = mimeType.indexOf(';')) < 0) {
+          charSet = "utf-8";
+        }
+        else {
+          charSet = mimeType.substring(semiColonPos + 1);
+          mimeType = mimeType.substring(0, semiColonPos);
+        }
+      }
+      else {
+        mimeType = "text/plain";
+        charSet = "utf-8";
       }
 
       switch (httpMethod) {
@@ -218,7 +235,7 @@ public class HttpTask extends AbstractTask {
           }
 
           httpRequest = new HttpPut(requestURI);
-          ((HttpPut)httpRequest).setEntity(new StringEntity(requestBody));
+          ((HttpPut)httpRequest).setEntity(new StringEntity(requestBody, charSet));
           break;
         case POST:
           if (((requestBody = bodyAttribute.get(this)) == null) || (requestBody.length() == 0)) {
@@ -226,7 +243,7 @@ public class HttpTask extends AbstractTask {
           }
 
           httpRequest = new HttpPost(requestURI);
-          ((HttpPost)httpRequest).setEntity(new StringEntity(requestBody));
+          ((HttpPost)httpRequest).setEntity(new StringEntity(requestBody, charSet));
           break;
         case DELETE:
           if (((requestBody = bodyAttribute.get(this)) != null) && (requestBody.length() > 0)) {
@@ -239,15 +256,7 @@ public class HttpTask extends AbstractTask {
           throw new UnknownSwitchCaseException(httpMethod.name());
       }
 
-      if ((requestContentType = contentTypeAttribute.get(this)) != null) {
-        if (requestContentType.indexOf(';') < 0) {
-          requestContentType += ";charset=utf-8";
-        }
-        httpRequest.setHeader("Content-Type", requestContentType);
-      }
-      else {
-        httpRequest.setHeader("Content-Type", "text/plain;charset=utf-8");
-      }
+      httpRequest.setHeader("Content-Type", requestContentType = mimeType + ";charset=" + charSet);
 
       startTime = System.currentTimeMillis();
       try {
