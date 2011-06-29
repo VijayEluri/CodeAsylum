@@ -241,12 +241,12 @@ public class HttpTask extends AbstractTask {
 
       if ((requestContentType = contentTypeAttribute.get(this)) != null) {
         if (requestContentType.indexOf(';') < 0) {
-          requestContentType += "; charset=utf-8";
+          requestContentType += ";charset=utf-8";
         }
         httpRequest.setHeader("Content-Type", requestContentType);
       }
       else {
-        httpRequest.setHeader("Content-Type", "text/plain; charset=utf-8");
+        httpRequest.setHeader("Content-Type", "text/plain;charset=utf-8");
       }
 
       startTime = System.currentTimeMillis();
