@@ -28,6 +28,6 @@ package com.codeasylum.stress.api.format;
 
 public interface Formatter {
 
-  public String format (byte[] bytes)
+  public String format (byte[] bytes, String charSet)
     throws FormattingException;
 }

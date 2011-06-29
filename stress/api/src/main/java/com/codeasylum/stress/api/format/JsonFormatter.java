@@ -34,7 +34,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class JsonFormatter implements Formatter {
 
   @Override
-  public String format (byte[] bytes)
+  public String format (byte[] bytes, String charSet)
     throws FormattingException {
 
     ObjectMapper objectMapper;
@@ -46,7 +46,7 @@ public class JsonFormatter implements Formatter {
     try {
       jsonGenerator = objectMapper.getJsonFactory().createJsonGenerator(writer = new StringWriter());
       jsonGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
-      objectMapper.writeTree(jsonGenerator, objectMapper.readTree(new String(bytes)));
+      objectMapper.writeTree(jsonGenerator, objectMapper.readTree(new String(bytes, charSet)));
     }
     catch (Exception exception) {
       throw new FormattingException(exception);

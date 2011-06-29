@@ -35,12 +35,11 @@ public class HttpFormatterFactory {
 
   private HashMap<String, Formatter> formatterMap = new HashMap<String, Formatter>();
 
-  public Formatter getFormatter (String contentType) {
+  public Formatter getFormatter (String mimeType) {
 
     Formatter formatter;
-    int semicolonPos;
 
-    if ((formatter = formatterMap.get(((semicolonPos = contentType.indexOf(';')) < 0) ? contentType : contentType.substring(0, semicolonPos))) == null) {
+    if ((formatter = formatterMap.get(mimeType)) == null) {
       formatter = DEFAULT_FORMATTER;
     }
 

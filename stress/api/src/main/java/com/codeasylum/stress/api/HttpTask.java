@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- *
+ * 
  * This file is part of the CodeAsylum Code Project.
- *
+ * 
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- *
+ * 
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
+ * 
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- *
+ * 
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -187,9 +187,8 @@ public class HttpTask extends AbstractTask {
       ResponseCarrier responseCarrier;
       URI requestURI;
       StringBuilder uriBuilder;
-      String requestContentType;
-      String mimeType;
-      String charSet;
+      String requestMimeType;
+      String requestCharSet;
       String requestBody;
       boolean validated = true;
       long startTime;
@@ -207,18 +206,18 @@ public class HttpTask extends AbstractTask {
         throw new TaskExecutionException(uriSyntaxException, "The %s(%s) has been configured with a malformed URI(%s)", HttpTask.class.getSimpleName(), getName(), uriBuilder.toString());
       }
 
-      if ((mimeType = contentTypeAttribute.get(this)) != null) {
-        if ((semiColonPos = mimeType.indexOf(';')) < 0) {
-          charSet = "utf-8";
+      if ((requestMimeType = contentTypeAttribute.get(this)) != null) {
+        if ((semiColonPos = requestMimeType.indexOf(';')) < 0) {
+          requestCharSet = "utf-8";
         }
         else {
-          charSet = mimeType.substring(semiColonPos + 1);
-          mimeType = mimeType.substring(0, semiColonPos);
+          requestCharSet = requestMimeType.substring(semiColonPos + 1);
+          requestMimeType = requestMimeType.substring(0, semiColonPos);
         }
       }
       else {
-        mimeType = "text/plain";
-        charSet = "utf-8";
+        requestMimeType = "text/plain";
+        requestCharSet = "utf-8";
       }
 
       switch (httpMethod) {
@@ -235,7 +234,7 @@ public class HttpTask extends AbstractTask {
           }
 
           httpRequest = new HttpPut(requestURI);
-          ((HttpPut)httpRequest).setEntity(new StringEntity(requestBody, charSet));
+          ((HttpPut)httpRequest).setEntity(new StringEntity(requestBody, requestCharSet));
           break;
         case POST:
           if (((requestBody = bodyAttribute.get(this)) == null) || (requestBody.length() == 0)) {
@@ -243,7 +242,7 @@ public class HttpTask extends AbstractTask {
           }
 
           httpRequest = new HttpPost(requestURI);
-          ((HttpPost)httpRequest).setEntity(new StringEntity(requestBody, charSet));
+          ((HttpPost)httpRequest).setEntity(new StringEntity(requestBody, requestCharSet));
           break;
         case DELETE:
           if (((requestBody = bodyAttribute.get(this)) != null) && (requestBody.length() > 0)) {
@@ -256,7 +255,7 @@ public class HttpTask extends AbstractTask {
           throw new UnknownSwitchCaseException(httpMethod.name());
       }
 
-      httpRequest.setHeader("Content-Type", requestContentType = mimeType + ";charset=" + charSet);
+      httpRequest.setHeader("Content-Type", requestMimeType + ";charset=" + requestCharSet);
 
       startTime = System.currentTimeMillis();
       try {
@@ -268,15 +267,32 @@ public class HttpTask extends AbstractTask {
 
             HttpEntity entity;
             Header contentTypeHeader = response.getFirstHeader("Content-Type");
+            String responseMimeType;
+            String responseCharSet;
+            int semiColonPos;
 
-            return new ResponseCarrier(System.currentTimeMillis(), response.getStatusLine().getStatusCode(), (contentTypeHeader == null) ? null : contentTypeHeader.getValue(), ((entity = response.getEntity()) == null) ? null : EntityUtils.toByteArray(entity));
+            if ((contentTypeHeader != null) && ((responseMimeType = contentTypeHeader.getValue()) != null)) {
+              if ((semiColonPos = responseMimeType.indexOf(';')) < 0) {
+                responseCharSet = "utf-8";
+              }
+              else {
+                responseCharSet = responseMimeType.substring(semiColonPos + 1);
+                responseMimeType = responseMimeType.substring(0, semiColonPos);
+              }
+            }
+            else {
+              responseMimeType = "text/plain";
+              responseCharSet = "utf-8";
+            }
+
+            return new ResponseCarrier(System.currentTimeMillis(), response.getStatusLine().getStatusCode(), responseMimeType, responseCharSet, ((entity = response.getEntity()) == null) ? null : EntityUtils.toByteArray(entity));
           }
         });
 
         if (!regexpMap.isEmpty()) {
 
           Matcher regexpMatcher;
-          String responseBody = (responseCarrier.getRawResponse() == null) ? null : new String(responseCarrier.getRawResponse());
+          String responseBody = (responseCarrier.getRawResponse() == null) ? null : new String(responseCarrier.getRawResponse(), responseCarrier.getResponseCharSet());
 
           for (Map.Entry<String, String> regexpEntry : regexpMap.entrySet()) {
             PropertyContext.removeKeysStartingWith(regexpEntry.getKey());
@@ -305,10 +321,10 @@ public class HttpTask extends AbstractTask {
           PropertyContext.put(responseKey, new String(responseCarrier.getRawResponse()));
         }
 
-        exchangeTransport.send(new HttpExchange(validated && (responseCarrier.getResponseCode() == 200), hostId, getName(), startTime, responseCarrier.getResponseTimestamp(), responseCarrier.getResponseCode(), requestContentType, requestBody, responseCarrier.getContentType(), responseCarrier.getRawResponse()));
+        exchangeTransport.send(new HttpExchange(validated && (responseCarrier.getResponseCode() == 200), hostId, getName(), startTime, responseCarrier.getResponseTimestamp(), responseCarrier.getResponseCode(), requestMimeType, requestCharSet, requestBody, responseCarrier.getResponseMimeType(), responseCarrier.getResponseCharSet(), responseCarrier.getRawResponse()));
       }
       catch (Exception exception) {
-        exchangeTransport.send(new HttpExchange(false, hostId, getName(), startTime, System.currentTimeMillis(), 503, requestContentType, requestBody, "text/plain", StackTraceUtilities.obtainStackTraceAsString(exception).getBytes()));
+        exchangeTransport.send(new HttpExchange(false, hostId, getName(), startTime, System.currentTimeMillis(), 503, requestMimeType, requestCharSet, requestBody, "text/plain", "utf-8", StackTraceUtilities.obtainStackTraceAsString(exception).getBytes()));
 
         if (!regexpMap.isEmpty()) {
           for (Map.Entry<String, String> regexpEntry : regexpMap.entrySet()) {
@@ -349,16 +365,18 @@ public class HttpTask extends AbstractTask {
 
   private class ResponseCarrier {
 
-    private String contentType;
+    private String responseMimeType;
+    private String responseCharSet;
     private byte[] rawResponse;
     private long responseTimestamp;
     private int responseCode;
 
-    private ResponseCarrier (long responseTimestamp, int responseCode, String contentType, byte[] rawResponse) {
+    private ResponseCarrier (long responseTimestamp, int responseCode, String responseMimeType, String responseCharSet, byte[] rawResponse) {
 
       this.responseTimestamp = responseTimestamp;
       this.responseCode = responseCode;
-      this.contentType = contentType;
+      this.responseMimeType = responseMimeType;
+      this.responseCharSet = responseCharSet;
       this.rawResponse = rawResponse;
     }
 
@@ -372,9 +390,24 @@ public class HttpTask extends AbstractTask {
       return responseCode;
     }
 
-    public String getContentType () {
+    public String getResponseMimeType () {
 
-      return contentType;
+      return responseMimeType;
+    }
+
+    public void setResponseMimeType (String responseMimeType) {
+
+      this.responseMimeType = responseMimeType;
+    }
+
+    public String getResponseCharSet () {
+
+      return responseCharSet;
+    }
+
+    public void setResponseCharSet (String responseCharSet) {
+
+      this.responseCharSet = responseCharSet;
     }
 
     public byte[] getRawResponse () {

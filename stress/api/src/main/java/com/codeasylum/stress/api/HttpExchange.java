@@ -36,8 +36,10 @@ public class HttpExchange implements Exchange<HttpTask> {
 
   private String hostId;
   private String taskName;
-  private String requestContentType;
-  private String responseContentType;
+  private String requestMimeType;
+  private String responseMimeType;
+  private String responseCharSet;
+  private String requestCharSet;
   private boolean success;
   private long startMillis;
   private long stopMillis;
@@ -52,16 +54,18 @@ public class HttpExchange implements Exchange<HttpTask> {
     HTTP_FORMATTER_FACTORY = context.getBean("httpFormatterFactory", HttpFormatterFactory.class);
   }
 
-  public HttpExchange (boolean success, String hostId, String taskName, long startMillis, long stopMillis, int responseCode, String requestContentType, String requestBody, String responseContentType, byte[] rawResponse) {
+  public HttpExchange (boolean success, String hostId, String taskName, long startMillis, long stopMillis, int responseCode, String requestMimeType, String requestCharSet, String requestBody, String responsMimeType, String responseCharSet, byte[] rawResponse) {
 
     this.success = success;
     this.hostId = hostId;
     this.taskName = taskName;
-    this.requestContentType = requestContentType;
-    this.responseContentType = responseContentType;
     this.startMillis = startMillis;
     this.stopMillis = stopMillis;
     this.responseCode = responseCode;
+    this.requestMimeType = requestMimeType;
+    this.requestCharSet = requestCharSet;
+    this.responseMimeType = responsMimeType;
+    this.responseCharSet = responseCharSet;
     this.rawResponse = rawResponse;
 
     rawRequest = requestBody.getBytes();
@@ -103,24 +107,34 @@ public class HttpExchange implements Exchange<HttpTask> {
     return stopMillis;
   }
 
-  public int getResponseCode () {
+  public String getRequestMimeType () {
 
-    return responseCode;
+    return requestMimeType;
   }
 
-  public String getRequestContentType () {
+  public String getRequestCharSet () {
 
-    return requestContentType;
-  }
-
-  public String getResponseContentType () {
-
-    return responseContentType;
+    return requestCharSet;
   }
 
   public byte[] getRawRequest () {
 
     return rawRequest;
+  }
+
+  public int getResponseCode () {
+
+    return responseCode;
+  }
+
+  public String getResponseMimeType () {
+
+    return responseMimeType;
+  }
+
+  public String getResponseCharSet () {
+
+    return responseCharSet;
   }
 
   public byte[] getRawResponse () {
@@ -132,13 +146,13 @@ public class HttpExchange implements Exchange<HttpTask> {
   public String getFormattedRequest ()
     throws FormattingException {
 
-    return HTTP_FORMATTER_FACTORY.getFormatter(requestContentType).format(rawRequest);
+    return HTTP_FORMATTER_FACTORY.getFormatter(requestMimeType).format(rawRequest, requestCharSet);
   }
 
   @Override
   public String getFormattedResponse ()
     throws FormattingException {
 
-    return HTTP_FORMATTER_FACTORY.getFormatter(responseContentType).format(rawResponse);
+    return HTTP_FORMATTER_FACTORY.getFormatter(responseMimeType).format(rawResponse, responseCharSet);
   }
 }

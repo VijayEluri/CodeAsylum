@@ -26,11 +26,19 @@
  */
 package com.codeasylum.stress.api.format;
 
+import java.io.UnsupportedEncodingException;
+
 public class DefaultFormatter implements Formatter {
 
   @Override
-  public String format (byte[] bytes) {
+  public String format (byte[] bytes, String charSet)
+    throws FormattingException {
 
-    return new String(bytes);
+    try {
+      return new String(bytes, charSet);
+    }
+    catch (UnsupportedEncodingException unsupportedEncodingException) {
+      throw new FormattingException(unsupportedEncodingException);
+    }
   }
 }
