@@ -35,7 +35,7 @@ public class DefaultFormatter implements Formatter {
     throws FormattingException {
 
     try {
-      return new String(bytes, charSet);
+      return (bytes == null) ? "" : new String(bytes, charSet);
     }
     catch (UnsupportedEncodingException unsupportedEncodingException) {
       throw new FormattingException(unsupportedEncodingException);

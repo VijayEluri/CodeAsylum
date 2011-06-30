@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- * 
+ *
  * This file is part of the CodeAsylum Code Project.
- * 
+ *
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- * 
+ *
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- * 
+ *
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -46,6 +46,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.util.EntityUtils;
 import org.smallmind.nutsnbolts.http.HttpMethod;
@@ -56,7 +57,7 @@ public class HttpTask extends AbstractTask {
 
   private static final ConcurrentHashMap<String, Pattern> PATTERN_MAP = new ConcurrentHashMap<String, Pattern>();
 
-  private transient HttpClient httpClient = new DefaultHttpClient(new SingleClientConnManager());
+  private transient HttpClient httpClient = new RedirectingHttpClient();
 
   private HashMap<String, String> regexpMap = new HashMap<String, String>();
   private HashMap<String, String> validationMap = new HashMap<String, String>();
@@ -192,7 +193,6 @@ public class HttpTask extends AbstractTask {
       String requestBody;
       boolean validated = true;
       long startTime;
-      int semiColonPos;
 
       if ((portAttribute.getScript() == null) || (portAttribute.getScript().length() == 0)) {
         throw new TaskExecutionException("The %s(%s) has no http port value configured", HttpTask.class.getSimpleName(), getName());
@@ -207,11 +207,21 @@ public class HttpTask extends AbstractTask {
       }
 
       if ((requestMimeType = contentTypeAttribute.get(this)) != null) {
+
+        int semiColonPos;
+
         if ((semiColonPos = requestMimeType.indexOf(';')) < 0) {
           requestCharSet = "utf-8";
         }
         else {
-          requestCharSet = requestMimeType.substring(semiColonPos + 1);
+
+          int equalsPos;
+
+          if ((equalsPos = requestMimeType.indexOf('=', semiColonPos + 1)) <= 0) {
+            throw new TaskExecutionException("The %s(%s) contains an improperly formatted content type(%s)", HttpTask.class.getSimpleName(), getName(), requestMimeType);
+          }
+
+          requestCharSet = requestMimeType.substring(equalsPos + 1);
           requestMimeType = requestMimeType.substring(0, semiColonPos);
         }
       }
@@ -269,20 +279,30 @@ public class HttpTask extends AbstractTask {
             Header contentTypeHeader = response.getFirstHeader("Content-Type");
             String responseMimeType;
             String responseCharSet;
-            int semiColonPos;
 
             if ((contentTypeHeader != null) && ((responseMimeType = contentTypeHeader.getValue()) != null)) {
+
+              int semiColonPos;
+
               if ((semiColonPos = responseMimeType.indexOf(';')) < 0) {
                 responseCharSet = "utf-8";
               }
               else {
-                responseCharSet = responseMimeType.substring(semiColonPos + 1);
+
+                int equalsPos;
+
+                if ((equalsPos = responseMimeType.indexOf('=', semiColonPos + 1)) <= 0) {
+                  throw new TaskExecutionException("Improperly formatted content type(%s) in response", responseMimeType);
+                }
+
+                responseCharSet = responseMimeType.substring(equalsPos + 1);
                 responseMimeType = responseMimeType.substring(0, semiColonPos);
               }
             }
             else {
               responseMimeType = "text/plain";
               responseCharSet = "utf-8";
+
             }
 
             return new ResponseCarrier(System.currentTimeMillis(), response.getStatusLine().getStatusCode(), responseMimeType, responseCharSet, ((entity = response.getEntity()) == null) ? null : EntityUtils.toByteArray(entity));
@@ -361,6 +381,16 @@ public class HttpTask extends AbstractTask {
     httpClient = new DefaultHttpClient();
 
     return this;
+  }
+
+  private class RedirectingHttpClient extends DefaultHttpClient {
+
+    public RedirectingHttpClient () {
+
+      super(new SingleClientConnManager());
+
+      setRedirectStrategy(new DefaultRedirectStrategy());
+    }
   }
 
   private class ResponseCarrier {
