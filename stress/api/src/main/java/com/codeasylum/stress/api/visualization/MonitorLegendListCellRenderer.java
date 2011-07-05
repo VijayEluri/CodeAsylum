@@ -35,7 +35,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import org.smallmind.swing.ComponentUtilities;
-import org.smallmind.swing.SwatchIcon;
+import org.smallmind.swing.icon.SwatchIcon;
 
 public class MonitorLegendListCellRenderer implements ListCellRenderer {
 
