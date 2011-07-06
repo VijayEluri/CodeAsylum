@@ -31,6 +31,8 @@ import org.smallmind.liquibase.spring.Source;
 
 public class LiquidateConfig {
 
+  private transient boolean changed = false;
+
   private Database database;
   private Goal goal;
   private Source source;
@@ -49,6 +51,7 @@ public class LiquidateConfig {
   public void setDatabase (Database database) {
 
     this.database = database;
+    setChanged(true);
   }
 
   public Goal getGoal () {
@@ -59,6 +62,7 @@ public class LiquidateConfig {
   public void setGoal (Goal goal) {
 
     this.goal = goal;
+    setChanged(true);
   }
 
   public Source getSource () {
@@ -69,6 +73,7 @@ public class LiquidateConfig {
   public void setSource (Source source) {
 
     this.source = source;
+    setChanged(true);
   }
 
   public String getChangeLog () {
@@ -79,6 +84,7 @@ public class LiquidateConfig {
   public void setChangeLog (String changeLog) {
 
     this.changeLog = changeLog;
+    setChanged(true);
   }
 
   public String getHost () {
@@ -89,6 +95,7 @@ public class LiquidateConfig {
   public void setHost (String host) {
 
     this.host = host;
+    setChanged(true);
   }
 
   public String getSchema () {
@@ -99,6 +106,7 @@ public class LiquidateConfig {
   public void setSchema (String schema) {
 
     this.schema = schema;
+    setChanged(true);
   }
 
   public String getUser () {
@@ -109,6 +117,7 @@ public class LiquidateConfig {
   public void setUser (String user) {
 
     this.user = user;
+    setChanged(true);
   }
 
   public String getPassword () {
@@ -119,6 +128,7 @@ public class LiquidateConfig {
   public void setPassword (String password) {
 
     this.password = password;
+    setChanged(true);
   }
 
   public int getPort () {
@@ -129,5 +139,16 @@ public class LiquidateConfig {
   public void setPort (int port) {
 
     this.port = port;
+    setChanged(true);
+  }
+
+  public boolean isChanged () {
+
+    return changed;
+  }
+
+  public void setChanged (boolean changed) {
+
+    this.changed = changed;
   }
 }

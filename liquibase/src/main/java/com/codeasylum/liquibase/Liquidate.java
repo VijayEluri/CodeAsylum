@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- *
+ * 
  * This file is part of the CodeAsylum Code Project.
- *
+ * 
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- *
+ * 
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
+ * 
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- *
+ * 
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -47,6 +47,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.parsers.ParserConfigurationException;
+import com.codeasylum.liquibase.menu.LiquidateMenuHandler;
 import org.smallmind.liquibase.spring.Goal;
 import org.smallmind.liquibase.spring.Source;
 import org.smallmind.liquibase.spring.SpringLiquibase;
@@ -57,9 +58,7 @@ import org.smallmind.swing.button.EventCoalescingButtonGroup;
 import org.smallmind.swing.button.GroupedActionEvent;
 import org.smallmind.swing.dialog.JavaErrorDialog;
 import org.smallmind.swing.menu.MenuDelegateFactory;
-import org.smallmind.swing.menu.MenuHandler;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class Liquidate extends JFrame implements ActionListener, ItemListener, DocumentListener {
@@ -76,7 +75,6 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
   private JTextField schemaTextField;
   private JTextField userTextField;
   private JTextField changeLogTextField;
-  private boolean changed;
 
   public Liquidate () {
 
@@ -102,7 +100,6 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     int goalIndex = 0;
 
     config = new LiquidateConfig();
-    changed = false;
 
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     setLayout(layout = new GroupLayout(getContentPane()));
@@ -218,14 +215,9 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
   private Liquidate init ()
     throws IOException, SAXException, ParserConfigurationException {
 
-    new MenuHandler(this, menuDelegateFactory, new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("com/codeasylum/liquibase/menu.xml")));
+    new LiquidateMenuHandler(this, menuDelegateFactory);
 
     return this;
-  }
-
-  public boolean isChanged () {
-
-    return changed;
   }
 
   public LiquidateConfig getConfig () {
@@ -259,8 +251,6 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
         break;
       }
     }
-
-    changed = false;
   }
 
   @Override
@@ -269,11 +259,9 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     if (actionEvent instanceof GroupedActionEvent) {
       if (((GroupedActionEvent)actionEvent).getButtonGroup() == sourceButtonGroup) {
         config.setSource(Source.valueOf(sourceButtonGroup.getSelection().getActionCommand()));
-        changed = true;
       }
       else if (((GroupedActionEvent)actionEvent).getButtonGroup() == goalButtonGroup) {
         config.setGoal(Goal.valueOf(goalButtonGroup.getSelection().getActionCommand()));
-        changed = true;
       }
     }
     else if (actionEvent.getSource() == startButton) {
@@ -302,7 +290,6 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
   public synchronized void itemStateChanged (ItemEvent itemEvent) {
 
     config.setDatabase((Database)databaseCombo.getSelectedItem());
-    changed = true;
   }
 
   private void documentUpdate (DocumentEvent documentEvent) {
@@ -325,8 +312,6 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     else if (documentEvent.getDocument() == changeLogTextField.getDocument()) {
       config.setChangeLog(changeLogTextField.getText());
     }
-
-    changed = true;
   }
 
   @Override

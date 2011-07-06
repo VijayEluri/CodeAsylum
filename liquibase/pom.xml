@@ -38,6 +38,11 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <scope>compile</scope>

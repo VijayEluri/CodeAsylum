@@ -29,6 +29,8 @@ package com.codeasylum.stress.ui.menu;
 import com.codeasylum.stress.api.RootTask;
 import com.codeasylum.stress.api.TestPlan;
 import org.smallmind.swing.dialog.JavaErrorDialog;
+import org.smallmind.swing.dialog.OptionType;
+import org.smallmind.swing.dialog.YesNoCancelDialog;
 import org.smallmind.swing.menu.MenuDelegate;
 import org.smallmind.swing.menu.MenuHandler;
 
@@ -37,20 +39,38 @@ public class NewDelegate implements MenuDelegate {
   @Override
   public void execute (MenuHandler menuHandler) {
 
-    if (((JormungandrMenuHandler)menuHandler).getJdrFile() != null) {
+    boolean allowNew = false;
+
+    if (((JormungandrMenuHandler)menuHandler).getTestExecutor().getTestPlan().isChanged()) {
+      switch (YesNoCancelDialog.showYesNoCancelDialog(menuHandler.getParentFrame(), OptionType.WARNING, "Save your current work first?")) {
+        case YES:
+          menuHandler.getDelegate("File/Save...").execute(menuHandler);
+          if (!((JormungandrMenuHandler)menuHandler).getTestExecutor().getTestPlan().isChanged()) {
+            allowNew = true;
+          }
+          break;
+        case NO:
+          allowNew = true;
+          break;
+      }
+    }
+    else {
+      allowNew = true;
     }
 
-    try {
+    if (allowNew) {
+      try {
 
-      TestPlan testPlan;
+        TestPlan testPlan;
 
-      ((JormungandrMenuHandler)menuHandler).setJdrFile(null);
-      testPlan = new TestPlan();
-      testPlan.getRootTask().setName(((JormungandrMenuHandler)menuHandler).getPalette().getAvatar(RootTask.class).getName());
-      ((JormungandrMenuHandler)menuHandler).setTestPlan(testPlan);
-    }
-    catch (Exception exception) {
-      JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);
+        ((JormungandrMenuHandler)menuHandler).setJdrFile(null);
+        testPlan = new TestPlan();
+        testPlan.getRootTask().setName(((JormungandrMenuHandler)menuHandler).getPalette().getAvatar(RootTask.class).getName());
+        ((JormungandrMenuHandler)menuHandler).setTestPlan(testPlan);
+      }
+      catch (Exception exception) {
+        JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);
+      }
     }
   }
 }

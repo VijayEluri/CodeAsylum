@@ -26,40 +26,46 @@
  */
 package com.codeasylum.liquibase.menu;
 
-import java.io.FileReader;
+import java.io.File;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import com.codeasylum.liquibase.Liquidate;
 import com.codeasylum.liquibase.LiquidateConfig;
-import com.thoughtworks.xstream.XStream;
-import org.smallmind.nutsnbolts.io.ExtensionFileFilter;
-import org.smallmind.swing.dialog.JavaErrorDialog;
-import org.smallmind.swing.file.FileChooserDialog;
-import org.smallmind.swing.file.FileChooserState;
-import org.smallmind.swing.menu.MenuDelegate;
+import org.smallmind.swing.menu.MenuDelegateFactory;
 import org.smallmind.swing.menu.MenuHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-public class OpenDelegate implements MenuDelegate {
+public class LiquidateMenuHandler extends MenuHandler {
 
-  @Override
-  public void execute (MenuHandler menuHandler) {
+  private Liquidate liquidate;
+  private File lqdFile;
 
-    FileChooserDialog fileChooser = new FileChooserDialog(menuHandler.getParentFrame(), FileChooserState.OPEN, (((LiquidateMenuHandler)menuHandler).getLqdFile() == null) ? null : ((LiquidateMenuHandler)menuHandler).getLqdFile().getParentFile(), new ExtensionFileFilter("Liquidate Config", "lqd"));
+  public LiquidateMenuHandler (Liquidate liquidate, MenuDelegateFactory menuDelegateFactory)
+    throws IOException, SAXException, ParserConfigurationException {
 
-    fileChooser.setVisible(true);
+    super(liquidate, menuDelegateFactory, new InputSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("com/codeasylum/liquibase/menu.xml")));
 
-    if (fileChooser.getChosenFile() != null) {
+    this.liquidate = liquidate;
+  }
 
-      XStream xstream = new XStream();
-      FileReader jdrReader;
+  public LiquidateConfig getConfig () {
 
-      try {
-        jdrReader = new FileReader(fileChooser.getChosenFile());
-        ((LiquidateMenuHandler)menuHandler).setConfig((LiquidateConfig)xstream.fromXML(jdrReader));
-        jdrReader.close();
+    return liquidate.getConfig();
+  }
 
-        ((LiquidateMenuHandler)menuHandler).setLqdFile(fileChooser.getChosenFile());
-      }
-      catch (Exception exception) {
-        JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);
-      }
-    }
+  public void setConfig (LiquidateConfig config) {
+
+    liquidate.setConfig(config);
+  }
+
+  public File getLqdFile () {
+
+    return lqdFile;
+  }
+
+  public void setLqdFile (File lqdFile) {
+
+    this.lqdFile = lqdFile;
   }
 }

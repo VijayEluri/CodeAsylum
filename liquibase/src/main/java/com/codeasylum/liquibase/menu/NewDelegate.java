@@ -26,6 +26,9 @@
  */
 package com.codeasylum.liquibase.menu;
 
+import com.codeasylum.liquibase.LiquidateConfig;
+import org.smallmind.swing.dialog.OptionType;
+import org.smallmind.swing.dialog.YesNoCancelDialog;
 import org.smallmind.swing.menu.MenuDelegate;
 import org.smallmind.swing.menu.MenuHandler;
 
@@ -34,5 +37,28 @@ public class NewDelegate implements MenuDelegate {
   @Override
   public void execute (MenuHandler menuHandler) {
 
+    boolean allowNew = false;
+
+    if (((LiquidateMenuHandler)menuHandler).getConfig().isChanged()) {
+      switch (YesNoCancelDialog.showYesNoCancelDialog(menuHandler.getParentFrame(), OptionType.WARNING, "Save your current work first?")) {
+        case YES:
+          menuHandler.getDelegate("File/Save...").execute(menuHandler);
+          if (!((LiquidateMenuHandler)menuHandler).getConfig().isChanged()) {
+            allowNew = true;
+          }
+          break;
+        case NO:
+          allowNew = true;
+          break;
+      }
+    }
+    else {
+      allowNew = true;
+    }
+
+    if (allowNew) {
+      ((LiquidateMenuHandler)menuHandler).setLqdFile(null);
+      ((LiquidateMenuHandler)menuHandler).setConfig(new LiquidateConfig());
+    }
   }
 }

@@ -197,7 +197,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
       switch (YesNoCancelDialog.showYesNoCancelDialog(this, OptionType.WARNING, "Save your work before closing?")) {
         case YES:
           menuHandler.getDelegate("File/Save...").execute(menuHandler);
-          if (menuHandler.getJdrFile() != null) {
+          if (!testExecutor.getTestPlan().isChanged()) {
             setVisible(false);
             dispose();
           }

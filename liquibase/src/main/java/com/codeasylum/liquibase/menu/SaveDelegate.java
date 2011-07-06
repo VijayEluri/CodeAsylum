@@ -26,6 +26,9 @@
  */
 package com.codeasylum.liquibase.menu;
 
+import java.io.FileWriter;
+import com.thoughtworks.xstream.XStream;
+import org.smallmind.swing.dialog.JavaErrorDialog;
 import org.smallmind.swing.menu.MenuDelegate;
 import org.smallmind.swing.menu.MenuHandler;
 
@@ -34,5 +37,24 @@ public class SaveDelegate implements MenuDelegate {
   @Override
   public void execute (MenuHandler menuHandler) {
 
+    if (((LiquidateMenuHandler)menuHandler).getLqdFile() == null) {
+      menuHandler.getDelegate("File/Save As...").execute(menuHandler);
+    }
+    else {
+      if (((LiquidateMenuHandler)menuHandler).getLqdFile() != null) {
+        XStream xstream = new XStream();
+        FileWriter jdrWriter;
+
+        try {
+          jdrWriter = new FileWriter(((LiquidateMenuHandler)menuHandler).getLqdFile());
+          xstream.toXML(((LiquidateMenuHandler)menuHandler).getConfig(), jdrWriter);
+          jdrWriter.close();
+          ((LiquidateMenuHandler)menuHandler).getConfig().setChanged(false);
+        }
+        catch (Exception exception) {
+          JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);
+        }
+      }
+    }
   }
 }

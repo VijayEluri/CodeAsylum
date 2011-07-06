@@ -26,6 +26,10 @@
  */
 package com.codeasylum.liquibase.menu;
 
+import java.io.File;
+import org.smallmind.nutsnbolts.io.ExtensionFileFilter;
+import org.smallmind.swing.file.FileChooserDialog;
+import org.smallmind.swing.file.FileChooserState;
 import org.smallmind.swing.menu.MenuDelegate;
 import org.smallmind.swing.menu.MenuHandler;
 
@@ -34,5 +38,19 @@ public class SaveAsDelegate implements MenuDelegate {
   @Override
   public void execute (MenuHandler menuHandler) {
 
+    FileChooserDialog fileChooser = new FileChooserDialog(menuHandler.getParentFrame(), FileChooserState.SAVE, (((LiquidateMenuHandler)menuHandler).getLqdFile() == null) ? null : ((LiquidateMenuHandler)menuHandler).getLqdFile().getParentFile(), new ExtensionFileFilter("Liquidate Config", "lqd"));
+
+    fileChooser.setVisible(true);
+
+    if (fileChooser.getChosenFile() != null) {
+      if (!fileChooser.getChosenFile().getName().endsWith(".lqd")) {
+        ((LiquidateMenuHandler)menuHandler).setLqdFile(new File(fileChooser.getChosenFile().getAbsolutePath() + ".lqd"));
+      }
+      else {
+        ((LiquidateMenuHandler)menuHandler).setLqdFile(fileChooser.getChosenFile());
+      }
+
+      menuHandler.getDelegate("File/Save...").execute(menuHandler);
+    }
   }
 }
