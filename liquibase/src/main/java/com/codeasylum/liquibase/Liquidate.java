@@ -75,6 +75,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
   private JTextField schemaTextField;
   private JTextField userTextField;
   private JTextField changeLogTextField;
+  private boolean changeSensitive = true;
 
   public Liquidate () {
 
@@ -225,31 +226,37 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     return config;
   }
 
-  public void setConfig (LiquidateConfig config) {
+  public synchronized void setConfig (LiquidateConfig config) {
 
     this.config = config;
 
-    databaseCombo.setSelectedItem((config.getDatabase() == null) ? Database.MYSQL : config.getDatabase());
-    hostTextField.setText((config.getHost() == null) ? "" : config.getHost());
-    portTextField.setText((config.getPort() == 0) ? "" : String.valueOf(config.getPort()));
-    schemaTextField.setText((config.getSchema() == null) ? "" : config.getSchema());
-    userTextField.setText((config.getUser() == null) ? "" : config.getUser());
-    passwordField.setText((config.getPassword() == null) ? "" : config.getPassword());
+    changeSensitive = false;
+    try {
+      databaseCombo.setSelectedItem((config.getDatabase() == null) ? Database.MYSQL : config.getDatabase());
+      hostTextField.setText((config.getHost() == null) ? "" : config.getHost());
+      portTextField.setText((config.getPort() == 0) ? "" : String.valueOf(config.getPort()));
+      schemaTextField.setText((config.getSchema() == null) ? "" : config.getSchema());
+      userTextField.setText((config.getUser() == null) ? "" : config.getUser());
+      passwordField.setText((config.getPassword() == null) ? "" : config.getPassword());
 
-    for (AbstractButton button : new EnumerationIterator<AbstractButton>(sourceButtonGroup.getElements())) {
-      if (button.getActionCommand().equals((config.getSource() == null) ? Source.FILE.name() : config.getSource().name())) {
-        sourceButtonGroup.setSelected(button.getModel(), true);
-        break;
+      for (AbstractButton button : new EnumerationIterator<AbstractButton>(sourceButtonGroup.getElements())) {
+        if (button.getActionCommand().equals((config.getSource() == null) ? Source.FILE.name() : config.getSource().name())) {
+          sourceButtonGroup.setSelected(button.getModel(), true);
+          break;
+        }
+      }
+
+      changeLogTextField.setText((config.getChangeLog() == null) ? "" : config.getChangeLog());
+
+      for (AbstractButton button : new EnumerationIterator<AbstractButton>(goalButtonGroup.getElements())) {
+        if (button.getActionCommand().equals((config.getGoal() == null) ? Goal.PREVIEW.name() : config.getGoal().name())) {
+          goalButtonGroup.setSelected(button.getModel(), true);
+          break;
+        }
       }
     }
-
-    changeLogTextField.setText((config.getChangeLog() == null) ? "" : config.getChangeLog());
-
-    for (AbstractButton button : new EnumerationIterator<AbstractButton>(goalButtonGroup.getElements())) {
-      if (button.getActionCommand().equals((config.getGoal() == null) ? Goal.PREVIEW.name() : config.getGoal().name())) {
-        goalButtonGroup.setSelected(button.getModel(), true);
-        break;
-      }
+    finally {
+      changeSensitive = true;
     }
   }
 
@@ -257,11 +264,13 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
   public synchronized void actionPerformed (ActionEvent actionEvent) {
 
     if (actionEvent instanceof GroupedActionEvent) {
-      if (((GroupedActionEvent)actionEvent).getButtonGroup() == sourceButtonGroup) {
-        config.setSource(Source.valueOf(sourceButtonGroup.getSelection().getActionCommand()));
-      }
-      else if (((GroupedActionEvent)actionEvent).getButtonGroup() == goalButtonGroup) {
-        config.setGoal(Goal.valueOf(goalButtonGroup.getSelection().getActionCommand()));
+      if (changeSensitive) {
+        if (((GroupedActionEvent)actionEvent).getButtonGroup() == sourceButtonGroup) {
+          config.setSource(Source.valueOf(sourceButtonGroup.getSelection().getActionCommand()));
+        }
+        else if (((GroupedActionEvent)actionEvent).getButtonGroup() == goalButtonGroup) {
+          config.setGoal(Goal.valueOf(goalButtonGroup.getSelection().getActionCommand()));
+        }
       }
     }
     else if (actionEvent.getSource() == startButton) {
@@ -289,28 +298,32 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
   @Override
   public synchronized void itemStateChanged (ItemEvent itemEvent) {
 
-    config.setDatabase((Database)databaseCombo.getSelectedItem());
+    if (changeSensitive) {
+      config.setDatabase((Database)databaseCombo.getSelectedItem());
+    }
   }
 
   private void documentUpdate (DocumentEvent documentEvent) {
 
-    if (documentEvent.getDocument() == hostTextField.getDocument()) {
-      config.setHost(hostTextField.getText());
-    }
-    else if (documentEvent.getDocument() == portTextField.getDocument()) {
-      config.setPort(Integer.parseInt(portTextField.getText()));
-    }
-    else if (documentEvent.getDocument() == schemaTextField.getDocument()) {
-      config.setSchema(schemaTextField.getText());
-    }
-    else if (documentEvent.getDocument() == userTextField.getDocument()) {
-      config.setUser(userTextField.getText());
-    }
-    else if (documentEvent.getDocument() == passwordField.getDocument()) {
-      config.setPassword(new String(passwordField.getPassword()));
-    }
-    else if (documentEvent.getDocument() == changeLogTextField.getDocument()) {
-      config.setChangeLog(changeLogTextField.getText());
+    if (changeSensitive) {
+      if (documentEvent.getDocument() == hostTextField.getDocument()) {
+        config.setHost(hostTextField.getText());
+      }
+      else if (documentEvent.getDocument() == portTextField.getDocument() && (portTextField.getText() != null) && (portTextField.getText().length() > 0)) {
+        config.setPort(Integer.parseInt(portTextField.getText()));
+      }
+      else if ((documentEvent.getDocument() == schemaTextField.getDocument())) {
+        config.setSchema(schemaTextField.getText());
+      }
+      else if (documentEvent.getDocument() == userTextField.getDocument()) {
+        config.setUser(userTextField.getText());
+      }
+      else if (documentEvent.getDocument() == passwordField.getDocument()) {
+        config.setPassword(new String(passwordField.getPassword()));
+      }
+      else if (documentEvent.getDocument() == changeLogTextField.getDocument()) {
+        config.setChangeLog(changeLogTextField.getText());
+      }
     }
   }
 
