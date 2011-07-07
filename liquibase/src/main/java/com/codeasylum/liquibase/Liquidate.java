@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- * 
+ *
  * This file is part of the CodeAsylum Code Project.
- * 
+ *
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- * 
+ *
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- * 
+ *
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -56,6 +56,7 @@ import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.orm.sql.DriverManagerDataSource;
 import org.smallmind.swing.button.EventCoalescingButtonGroup;
 import org.smallmind.swing.button.GroupedActionEvent;
+import org.smallmind.swing.dialog.InfoDialog;
 import org.smallmind.swing.dialog.JavaErrorDialog;
 import org.smallmind.swing.menu.MenuDelegateFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -288,6 +289,8 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
       try {
         springLiquibase.setDataSource(new DriverManagerDataSource(database.getDriver().getName(), database.getUrl(hostTextField.getText(), portTextField.getText(), schemaTextField.getText()), userTextField.getText(), new String(passwordField.getPassword())));
         springLiquibase.afterPropertiesSet();
+
+        InfoDialog.showInfoDialog(this, "Liquibase update completed...");
       }
       catch (Exception exception) {
         JavaErrorDialog.showJavaErrorDialog(this, this, exception);
