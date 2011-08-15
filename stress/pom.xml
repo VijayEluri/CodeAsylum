@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.codeasylum</groupId>
     <artifactId>codeasylum</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
   </parent>
   <artifactId>codeasylum-stress</artifactId>
   <packaging>pom</packaging>

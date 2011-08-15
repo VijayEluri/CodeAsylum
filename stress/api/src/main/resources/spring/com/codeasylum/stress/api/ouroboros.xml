@@ -22,12 +22,14 @@
     <property name="rmiPort" value="${com.codeasylum.ouroboros.registryport}"/>
   </bean>
 
-  <bean class="com.codeasylum.stress.api.spring.RemoteServiceExporter">
-    <property name="serviceName" value="com.codeasylum.stress.api.Ouroboros"/>
+  <bean id="rmiRegistry" class="org.smallmind.nutsnbolts.spring.remote.RMIRegistryFactorytBean">
+    <property name="port" value="${com.codeasylum.ouroboros.registryport}"/>
+  </bean>
+
+  <bean class="org.smallmind.nutsnbolts.spring.remote.RemoteServiceExporter" destroy-method="unbind">
+    <property name="name" value="com.codeasylum.stress.api.Ouroboros"/>
     <property name="service" ref="ouroborosService"/>
-    <property name="serviceInterface" value="com.codeasylum.stress.api.Ouroboros"/>
-    <property name="replaceExistingBinding" value="true"/>
-    <property name="registryPort" value="${com.codeasylum.ouroboros.registryport}"/>
+    <property name="registry" ref="rmiRegistry"/>
   </bean>
 
 </beans>
