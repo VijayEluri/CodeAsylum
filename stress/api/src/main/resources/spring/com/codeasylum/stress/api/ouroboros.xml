@@ -22,7 +22,7 @@
     <property name="rmiPort" value="${com.codeasylum.ouroboros.registryport}"/>
   </bean>
 
-  <bean id="rmiRegistry" class="org.smallmind.nutsnbolts.spring.remote.RMIRegistryFactorytBean">
+  <bean id="rmiRegistry" class="org.smallmind.nutsnbolts.spring.remote.RMIRegistryFactoryBean">
     <property name="port" value="${com.codeasylum.ouroboros.registryport}"/>
   </bean>
 

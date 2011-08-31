@@ -37,6 +37,7 @@ public class LiquidateConfig {
   private Goal goal;
   private Source source;
   private String changeLog;
+  private String output;
   private String host;
   private String schema;
   private String user;
@@ -84,6 +85,17 @@ public class LiquidateConfig {
   public void setChangeLog (String changeLog) {
 
     this.changeLog = changeLog;
+    setChanged(true);
+  }
+
+  public String getOutput () {
+
+    return output;
+  }
+
+  public void setOutput (String output) {
+
+    this.output = output;
     setChanged(true);
   }
 

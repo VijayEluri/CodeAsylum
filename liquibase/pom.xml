@@ -57,6 +57,10 @@
         <filtering>false</filtering>
       </resource>
       <resource>
+        <directory>src/main/resources/image</directory>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
         <directory>src/main/resources/xml</directory>
         <filtering>false</filtering>
       </resource>

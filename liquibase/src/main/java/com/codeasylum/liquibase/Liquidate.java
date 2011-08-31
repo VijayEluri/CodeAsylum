@@ -27,15 +27,18 @@
 package com.codeasylum.liquibase;
 
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import javax.swing.AbstractButton;
 import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -44,6 +47,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.parsers.ParserConfigurationException;
@@ -51,6 +55,8 @@ import com.codeasylum.liquibase.menu.LiquidateMenuHandler;
 import org.smallmind.liquibase.spring.Goal;
 import org.smallmind.liquibase.spring.Source;
 import org.smallmind.liquibase.spring.SpringLiquibase;
+import org.smallmind.nutsnbolts.lang.FormattedRuntimeException;
+import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
 import org.smallmind.nutsnbolts.util.EnumerationIterator;
 import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.orm.sql.DriverManagerDataSource;
@@ -58,14 +64,21 @@ import org.smallmind.swing.button.EventCoalescingButtonGroup;
 import org.smallmind.swing.button.GroupedActionEvent;
 import org.smallmind.swing.dialog.InfoDialog;
 import org.smallmind.swing.dialog.JavaErrorDialog;
+import org.smallmind.swing.dialog.WarningDialog;
+import org.smallmind.swing.file.DirectoryChooserDialog;
+import org.smallmind.swing.file.FileChooserDialog;
+import org.smallmind.swing.file.FileChooserState;
 import org.smallmind.swing.menu.MenuDelegateFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.xml.sax.SAXException;
 
 public class Liquidate extends JFrame implements ActionListener, ItemListener, DocumentListener {
 
+  private static final ImageIcon BROWSE_ICON = new ImageIcon(ClassLoader.getSystemResource("com/codeasylum/liquibase/folder_view_16.png"));
+
   private LiquidateConfig config;
   private MenuDelegateFactory menuDelegateFactory;
+  private JButton browseButton;
   private JButton startButton;
   private JComboBox databaseCombo;
   private EventCoalescingButtonGroup sourceButtonGroup;
@@ -76,6 +89,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
   private JTextField schemaTextField;
   private JTextField userTextField;
   private JTextField changeLogTextField;
+  private JTextField outputTextField;
   private boolean changeSensitive = true;
 
   public Liquidate () {
@@ -98,6 +112,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     JLabel passwordLabel;
     JLabel sourceLabel;
     JLabel goalLabel;
+    JLabel outputLabel;
     int sourceIndex = 0;
     int goalIndex = 0;
 
@@ -158,6 +173,17 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     goalButtons[0].setSelected(true);
     goalButtonGroup.addActionListener(this);
 
+    outputLabel = new JLabel("Output:");
+    browseButton = new JButton("Browse...", BROWSE_ICON);
+    browseButton.setMargin(new Insets(2, 2, 2, 2));
+    browseButton.setFocusable(false);
+    browseButton.setToolTipText("browse for a file");
+    browseButton.addActionListener(this);
+    browseButton.setEnabled(false);
+    outputTextField = new JTextField();
+    outputTextField.getDocument().addDocumentListener(this);
+    outputTextField.setEnabled(false);
+
     buttonSeparator = new JSeparator(JSeparator.HORIZONTAL);
     buttonSeparator.setMaximumSize(new Dimension(Integer.MAX_VALUE, (int)buttonSeparator.getPreferredSize().getHeight()));
 
@@ -168,17 +194,19 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
 
     layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
       .addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-        .addGroup(layout.createSequentialGroup().addComponent(databaseLabel).addGap(10))
-        .addGroup(layout.createSequentialGroup().addComponent(hostLabel).addGap(10))
-        .addGroup(layout.createSequentialGroup().addComponent(schemaLabel).addGap(10))
-        .addGroup(layout.createSequentialGroup().addComponent(userLabel).addGap(10))
-        .addGroup(layout.createSequentialGroup().addComponent(passwordLabel).addGap(10))
-        .addGroup(layout.createSequentialGroup().addComponent(sourceLabel).addGap(10))
-        .addGroup(layout.createSequentialGroup().addComponent(goalLabel).addGap(10)))
+        .addGroup(layout.createSequentialGroup().addComponent(databaseLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+        .addGroup(layout.createSequentialGroup().addComponent(hostLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+        .addGroup(layout.createSequentialGroup().addComponent(schemaLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+        .addGroup(layout.createSequentialGroup().addComponent(userLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+        .addGroup(layout.createSequentialGroup().addComponent(passwordLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+        .addGroup(layout.createSequentialGroup().addComponent(sourceLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+        .addGroup(layout.createSequentialGroup().addComponent(goalLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+        .addGroup(layout.createSequentialGroup().addComponent(outputLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)))
         .addGroup(goalHorizontalGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(databaseCombo)
-          .addGroup(layout.createSequentialGroup().addComponent(hostTextField).addGap(2).addComponent(colonLabel).addGap(2).addComponent(portTextField))
+          .addGroup(layout.createSequentialGroup().addComponent(hostTextField).addGap(3).addComponent(colonLabel).addGap(3).addComponent(portTextField))
           .addComponent(schemaTextField).addComponent(userTextField).addComponent(passwordField)
-          .addGroup(sourceHorizontalGroup = layout.createSequentialGroup()).addComponent(changeLogTextField)))
+          .addGroup(sourceHorizontalGroup = layout.createSequentialGroup()).addComponent(changeLogTextField)
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(outputTextField).addComponent(browseButton))))
       .addComponent(buttonSeparator).addComponent(startButton));
 
     for (JRadioButton sourceButton : sourceButtons) {
@@ -190,13 +218,13 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     }
 
     layout.setVerticalGroup(goalVerticalGroup = layout.createSequentialGroup()
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(databaseLabel).addComponent(databaseCombo)).addGap(8)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(hostLabel).addComponent(hostTextField).addComponent(colonLabel).addComponent(portTextField)).addGap(8)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(schemaLabel).addComponent(schemaTextField)).addGap(8)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(userLabel).addComponent(userTextField)).addGap(8)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(passwordLabel).addComponent(passwordField)).addGap(8)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(sourceLabel).addGroup(sourceVerticalGroup = layout.createParallelGroup())).addGap(8)
-      .addComponent(changeLogTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addGap(8)
+      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(databaseLabel).addComponent(databaseCombo)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(hostLabel).addComponent(hostTextField).addComponent(colonLabel).addComponent(portTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(schemaLabel).addComponent(schemaTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(userLabel).addComponent(userTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(passwordLabel).addComponent(passwordField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(sourceLabel).addGroup(sourceVerticalGroup = layout.createParallelGroup())).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+      .addComponent(changeLogTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
       .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(goalLabel).addComponent(goalButtons[0])));
 
     for (JRadioButton sourceButton : sourceButtons) {
@@ -207,7 +235,9 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
       goalVerticalGroup.addComponent(goalButtons[count]);
     }
 
-    goalVerticalGroup.addGap(15).addComponent(buttonSeparator).addGap(8).addComponent(startButton);
+    goalVerticalGroup
+      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(outputLabel).addComponent(outputTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(browseButton)
+      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addComponent(buttonSeparator).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(startButton);
 
     setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 150, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 50));
     setResizable(false);
@@ -255,6 +285,10 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
           break;
         }
       }
+
+      outputTextField.setText(config.getOutput());
+      outputTextField.setEnabled(config.getGoal().equals(Goal.GENERATE) || config.getGoal().equals(Goal.DOCUMENT));
+      browseButton.setEnabled(config.getGoal().equals(Goal.GENERATE) || config.getGoal().equals(Goal.DOCUMENT));
     }
     finally {
       changeSensitive = true;
@@ -270,30 +304,122 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
           config.setSource(Source.valueOf(sourceButtonGroup.getSelection().getActionCommand()));
         }
         else if (((GroupedActionEvent)actionEvent).getButtonGroup() == goalButtonGroup) {
-          config.setGoal(Goal.valueOf(goalButtonGroup.getSelection().getActionCommand()));
+
+          Goal goal;
+
+          config.setGoal(goal = Goal.valueOf(goalButtonGroup.getSelection().getActionCommand()));
+          outputTextField.setEnabled(goal.equals(Goal.GENERATE) || goal.equals(Goal.DOCUMENT));
+          browseButton.setEnabled(goal.equals(Goal.GENERATE) || goal.equals(Goal.DOCUMENT));
+
+          outputTextField.setText("");
+          config.setOutput("");
         }
+      }
+    }
+    else if (actionEvent.getSource() == browseButton) {
+
+      Goal goal;
+
+      switch (goal = Goal.valueOf(goalButtonGroup.getSelection().getActionCommand())) {
+        case NONE:
+          throw new FormattedRuntimeException("There should be no browse functionality for goal(%s)", goal.name());
+        case PREVIEW:
+          throw new FormattedRuntimeException("There should be no browse functionality for goal(%s)", goal.name());
+        case DOCUMENT:
+
+          File directory;
+
+          if ((directory = DirectoryChooserDialog.showDirectoryChooserDialog(this)) != null) {
+            outputTextField.setText(directory.getAbsolutePath());
+          }
+          break;
+        case GENERATE:
+
+          File file;
+
+          if ((file = FileChooserDialog.showFileChooserDialog(this, FileChooserState.OPEN)) != null) {
+            outputTextField.setText(file.getAbsolutePath());
+          }
+          break;
+        case UPDATE:
+          throw new FormattedRuntimeException("There should be no browse functionality for goal(%s)", goal.name());
+        default:
+          throw new UnknownSwitchCaseException(goal.name());
       }
     }
     else if (actionEvent.getSource() == startButton) {
 
       SpringLiquibase springLiquibase;
       Database database;
+      Goal goal;
+      boolean outputValidated = true;
 
       springLiquibase = new SpringLiquibase();
-      springLiquibase.setSource(Source.valueOf(sourceButtonGroup.getSelection().getActionCommand()));
-      springLiquibase.setChangeLog(changeLogTextField.getText());
-      springLiquibase.setGoal(Goal.valueOf(goalButtonGroup.getSelection().getActionCommand()));
+      springLiquibase.setGoal(goal = Goal.valueOf(goalButtonGroup.getSelection().getActionCommand()));
 
-      database = (Database)databaseCombo.getSelectedItem();
+      switch (goal) {
+        case NONE:
+          break;
+        case PREVIEW:
+          break;
+        case DOCUMENT:
+          if ((config.getOutput() != null) && (config.getOutput().length() > 0)) {
 
-      try {
-        springLiquibase.setDataSource(new DriverManagerDataSource(database.getDriver().getName(), database.getUrl(hostTextField.getText(), portTextField.getText(), schemaTextField.getText()), userTextField.getText(), new String(passwordField.getPassword())));
-        springLiquibase.afterPropertiesSet();
+            File file;
 
-        InfoDialog.showInfoDialog(this, "Liquibase update completed...");
+            if (!(file = new File(config.getOutput())).isDirectory()) {
+              outputValidated = false;
+              WarningDialog.showWarningDialog(this, "Liquibase documentation requires that an output location be an existing folder");
+            }
+            else {
+              springLiquibase.setOutputDir(file.getAbsolutePath());
+            }
+          }
+          break;
+        case GENERATE:
+          if ((config.getOutput() == null) || (config.getOutput().length() == 0)) {
+            outputValidated = false;
+            WarningDialog.showWarningDialog(this, "Liquibase state generation requires an output file");
+          }
+          else if (!config.getOutput().contains(System.getProperty("file.separator"))) {
+            outputValidated = false;
+            WarningDialog.showWarningDialog(this, "Liquibase state generation requires that the output location refer to a file, and not just a folder");
+          }
+          else {
+
+            File file = new File(config.getOutput());
+
+            if (!file.getParentFile().isDirectory()) {
+              outputValidated = false;
+              WarningDialog.showWarningDialog(this, "Liquibase state generation requires that an output location refer to an existing folder");
+            }
+            else {
+              springLiquibase.setOutputDir(file.getParent());
+              springLiquibase.setOutputLog(file.getName());
+            }
+          }
+          break;
+        case UPDATE:
+          break;
+        default:
+          throw new UnknownSwitchCaseException(goal.name());
       }
-      catch (Exception exception) {
-        JavaErrorDialog.showJavaErrorDialog(this, this, exception);
+
+      if (outputValidated) {
+        springLiquibase.setSource(Source.valueOf(sourceButtonGroup.getSelection().getActionCommand()));
+        springLiquibase.setChangeLog(changeLogTextField.getText());
+
+        database = (Database)databaseCombo.getSelectedItem();
+
+        try {
+          springLiquibase.setDataSource(new DriverManagerDataSource(database.getDriver().getName(), database.getUrl(hostTextField.getText(), portTextField.getText(), schemaTextField.getText()), userTextField.getText(), new String(passwordField.getPassword())));
+          springLiquibase.afterPropertiesSet();
+
+          InfoDialog.showInfoDialog(this, "Liquibase update completed...");
+        }
+        catch (Exception exception) {
+          JavaErrorDialog.showJavaErrorDialog(this, this, exception);
+        }
       }
     }
   }
@@ -326,6 +452,9 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
       }
       else if (documentEvent.getDocument() == changeLogTextField.getDocument()) {
         config.setChangeLog(changeLogTextField.getText());
+      }
+      else if (documentEvent.getDocument() == outputTextField.getDocument()) {
+        config.setOutput(outputTextField.getText());
       }
     }
   }
