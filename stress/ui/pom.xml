@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.codeasylum</groupId>
     <artifactId>codeasylum-stress</artifactId>
-    <version>0.9.3</version>
+    <version>0.9.4</version>
   </parent>
   <artifactId>stress-ui</artifactId>
   <packaging>jar</packaging>
