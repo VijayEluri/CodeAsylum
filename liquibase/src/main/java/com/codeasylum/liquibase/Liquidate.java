@@ -76,6 +76,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
 
   private static final ImageIcon BROWSE_ICON = new ImageIcon(ClassLoader.getSystemResource("com/codeasylum/liquibase/folder_view_16.png"));
 
+  private ExtendedProfileLoader extensionLoader;
   private LiquidateConfig config;
   private MenuDelegateFactory menuDelegateFactory;
   private JButton browseButton;
@@ -244,8 +245,10 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     setLocationByPlatform(true);
   }
 
-  private Liquidate init ()
+  private Liquidate init (ExtendedProfileLoader extensionLoader)
     throws IOException, SAXException, ParserConfigurationException {
+
+    this.extensionLoader = extensionLoader;
 
     new LiquidateMenuHandler(this, menuDelegateFactory);
 
@@ -354,7 +357,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
       Goal goal;
       boolean outputValidated = true;
 
-      springLiquibase = new SpringLiquibase();
+      springLiquibase = new SpringLiquibase(extensionLoader.getClassLoader());
       springLiquibase.setGoal(goal = Goal.valueOf(goalButtonGroup.getSelection().getActionCommand()));
 
       switch (goal) {
@@ -484,10 +487,11 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
 
   public static void main (String... args) {
 
+    ExtendedProfileLoader extensionLoader = null;
     boolean init = false;
 
     try {
-      new ExtendedProfileLoader();
+      extensionLoader = new ExtendedProfileLoader();
       init = true;
     }
     catch (Exception exception) {
@@ -511,7 +515,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
           }
         });
 
-        liquidate.init().setVisible(true);
+        liquidate.init(extensionLoader).setVisible(true);
       }
       catch (Exception exception) {
         JavaErrorDialog.showJavaErrorDialog(liquidate, liquidate, exception);
