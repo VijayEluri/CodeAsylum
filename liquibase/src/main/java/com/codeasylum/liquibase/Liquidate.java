@@ -55,6 +55,7 @@ import com.codeasylum.liquibase.menu.LiquidateMenuHandler;
 import org.smallmind.liquibase.spring.Goal;
 import org.smallmind.liquibase.spring.Source;
 import org.smallmind.liquibase.spring.SpringLiquibase;
+import org.smallmind.nutsnbolts.io.StenographWriter;
 import org.smallmind.nutsnbolts.lang.FormattedRuntimeException;
 import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
 import org.smallmind.nutsnbolts.util.EnumerationIterator;
@@ -409,6 +410,15 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
       }
 
       if (outputValidated) {
+
+        if (goal.equals(Goal.PREVIEW)) {
+
+          StenographWriter previewWriter;
+
+          springLiquibase.setPreviewWriter(previewWriter = new StenographWriter());
+          PreviewDialog.showPreviewDialog(this, previewWriter);
+        }
+
         springLiquibase.setSource(Source.valueOf(sourceButtonGroup.getSelection().getActionCommand()));
         springLiquibase.setChangeLog(changeLogTextField.getText());
 
