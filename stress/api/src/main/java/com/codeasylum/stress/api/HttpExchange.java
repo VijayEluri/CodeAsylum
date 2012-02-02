@@ -68,7 +68,7 @@ public class HttpExchange implements Exchange<HttpTask> {
     this.responseCharSet = responseCharSet;
     this.rawResponse = rawResponse;
 
-    rawRequest = requestBody.getBytes();
+    rawRequest = (requestBody == null) ? null : requestBody.getBytes();
   }
 
   @Override
