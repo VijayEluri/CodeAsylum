@@ -31,7 +31,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.http.Header;
@@ -51,11 +50,15 @@ import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.util.EntityUtils;
 import org.smallmind.nutsnbolts.http.HttpMethod;
 import org.smallmind.nutsnbolts.lang.StackTraceUtilities;
+import org.smallmind.nutsnbolts.lang.StaticInitializationError;
 import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
+import org.smallmind.nutsnbolts.util.PropertyExpander;
+import org.smallmind.nutsnbolts.util.PropertyExpanderException;
+import org.smallmind.nutsnbolts.util.SystemPropertyMode;
 
 public class HttpTask extends AbstractTask {
 
-  private static final ConcurrentHashMap<String, Pattern> PATTERN_MAP = new ConcurrentHashMap<String, Pattern>();
+  private static final PropertyExpander PROPERTY_EXPANDER;
 
   private transient HttpClient httpClient = new RedirectingHttpClient();
 
@@ -68,6 +71,16 @@ public class HttpTask extends AbstractTask {
   private Attribute<Integer> portAttribute = new Attribute<Integer>(Integer.class, "80");
   private HttpMethod httpMethod = HttpMethod.GET;
   private String responseKey;
+
+  static {
+
+    try {
+      PROPERTY_EXPANDER = new PropertyExpander(false, SystemPropertyMode.NEVER, false);
+    }
+    catch (PropertyExpanderException propertyExpanderException) {
+      throw new StaticInitializationError(propertyExpanderException);
+    }
+  }
 
   public HttpTask () {
 
@@ -318,7 +331,7 @@ public class HttpTask extends AbstractTask {
             PropertyContext.removeKeysStartingWith(regexpEntry.getKey());
 
             if (responseBody != null) {
-              if ((regexpMatcher = getPattern(regexpEntry.getValue()).matcher(responseBody)).find()) {
+              if ((regexpMatcher = Pattern.compile(PROPERTY_EXPANDER.expand(regexpEntry.getValue(), PropertyContext.getMap())).matcher(responseBody)).find()) {
                 PropertyContext.put(regexpEntry.getKey(), "true");
                 for (int groupIndex = 0; groupIndex <= regexpMatcher.groupCount(); groupIndex++) {
                   PropertyContext.put(regexpEntry.getKey() + '.' + groupIndex, regexpMatcher.group(groupIndex));
@@ -357,17 +370,6 @@ public class HttpTask extends AbstractTask {
         }
       }
     }
-  }
-
-  private Pattern getPattern (String primalPattern) {
-
-    Pattern pattern;
-
-    if ((pattern = PATTERN_MAP.get(primalPattern)) == null) {
-      PATTERN_MAP.put(primalPattern, pattern = Pattern.compile(primalPattern));
-    }
-
-    return pattern;
   }
 
   @Override
