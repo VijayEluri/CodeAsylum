@@ -5,7 +5,8 @@
     <property name="order" value="1"/>
     <property name="propertyMap">
       <map>
-        <entry key="com.codeasylum.ouroboros.registryport" value="1199"/>
+        <entry key="com.codeasylum.ouroboros.registryport" value="1198"/>
+        <entry key="com.codeasylum.ouroboros.serviceport" value="0"/>
       </map>
     </property>
   </bean>
@@ -19,7 +20,8 @@
   </bean>
 
   <bean id="ouroborosService" class="com.codeasylum.stress.api.OuroborosImpl">
-    <property name="rmiPort" value="${com.codeasylum.ouroboros.registryport}"/>
+    <constructor-arg index="0" value="${com.codeasylum.ouroboros.serviceport}"/>
+    <property name="registryPort" value="${com.codeasylum.ouroboros.registryport}"/>
   </bean>
 
   <bean id="rmiRegistry" class="org.smallmind.nutsnbolts.spring.remote.RMIRegistryFactoryBean">

@@ -51,12 +51,12 @@ public class TestExecutor implements ExchangeListener {
   private DebugListModel debugListModel;
   private TestPlan testPlan;
 
-  public TestExecutor (TestPlan testPlan)
+  public TestExecutor (TestPlan testPlan, int exchangeTransportRMIPort)
     throws RemoteException {
 
     this.testPlan = testPlan;
 
-    exchangeTransport = new ExchangeTransportImpl();
+    exchangeTransport = new ExchangeTransportImpl(exchangeTransportRMIPort);
     exchangeTransport.addExchangeListener(this);
 
     exchangeListModel = new ExchangeListModel(testPlan, exchangeTransport);

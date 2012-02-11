@@ -62,6 +62,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
   private PalettePanel palettePanel;
   private TestPanel testPanel;
   private TestExecutor testExecutor;
+  private int exchangeTransportRMIPort;
 
   public Jormungandr () {
 
@@ -69,7 +70,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
   }
 
   private synchronized Jormungandr init ()
-    throws RemoteException, IOException, SAXException, ParserConfigurationException {
+    throws IOException, SAXException, ParserConfigurationException {
 
     TestPlan testPlan;
     GhostPanel ghostPanel;
@@ -84,7 +85,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
 
     menuHandler = new JormungandrMenuHandler(this, menuDelegateFactory);
 
-    testExecutor = new TestExecutor(testPlan = new TestPlan());
+    testExecutor = new TestExecutor(testPlan = new TestPlan(), exchangeTransportRMIPort);
     testExecutor.addTestExecutorListener(this);
     testPlan.getRootTask().setName(palette.getAvatar(RootTask.class).getName());
 
@@ -117,6 +118,11 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
     return this;
   }
 
+  public synchronized void setExchangeTransportRMIPort (int exchangeTransportRMIPort) {
+
+    this.exchangeTransportRMIPort = exchangeTransportRMIPort;
+  }
+
   public synchronized void setMenuDelegateFactory (MenuDelegateFactory menuDelegateFactory) {
 
     this.menuDelegateFactory = menuDelegateFactory;
@@ -132,11 +138,6 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
     this.palette = palette;
   }
 
-  public JormungandrMenuHandler getMenuHandler () {
-
-    return menuHandler;
-  }
-
   public synchronized TestExecutor getTestExecutor () {
 
     return testExecutor;
@@ -145,7 +146,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
   public synchronized void setTestPlan (TestPlan testPlan)
     throws RemoteException {
 
-    testExecutor = new TestExecutor(testPlan);
+    testExecutor = new TestExecutor(testPlan, exchangeTransportRMIPort);
     testExecutor.addTestExecutorListener(this);
 
     testPanel.setTestPlan(testPlan);
@@ -254,7 +255,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
 
     if (init) {
 
-      final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("com/codeasylum/stress/ui/jormungandr.xml");
+      final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("com/codeasylum/stress/api/logging.xml", "com/codeasylum/stress/ui/jormungandr.xml");
 
       Jormungandr jormungandr = applicationContext.getBean("jormungandr", Jormungandr.class);
 

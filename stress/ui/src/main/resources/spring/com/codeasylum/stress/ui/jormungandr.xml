@@ -3,7 +3,17 @@
 
   <import resource="classpath:com/codeasylum/stress/api/ouroboros.xml"/>
 
+  <bean class="org.smallmind.nutsnbolts.spring.SystemPropertyBeanFactoryPostProcessor">
+    <property name="order" value="1"/>
+    <property name="propertyMap">
+      <map>
+        <entry key="com.codeasylum.jormungandr.serviceport" value="0"/>
+      </map>
+    </property>
+  </bean>
+
   <bean id="jormungandr" class="com.codeasylum.stress.ui.Jormungandr">
+    <property name="exchangeTransportRMIPort" value="${com.codeasylum.jormungandr.serviceport}"/>
     <property name="menuDelegateFactory">
       <bean class="org.smallmind.swing.menu.MenuDelegateFactory">
         <constructor-arg index="0">

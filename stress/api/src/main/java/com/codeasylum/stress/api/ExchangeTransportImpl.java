@@ -41,8 +41,10 @@ public class ExchangeTransportImpl extends UnicastRemoteObject implements Exchan
   private final LinkedBlockingQueue<Exchange<? extends Task>> exchangeQueue;
   private final LinkedBlockingQueue<Debug> debugQueue;
 
-  public ExchangeTransportImpl ()
+  public ExchangeTransportImpl (int servicePort)
     throws RemoteException {
+
+    super(0, new OuroborosRMIClientSocketFactory(), new OuroborosRMIServerSocketFactory(servicePort));
 
     exchangeListenerList = new WeakEventListenerList<ExchangeListener>();
     debugListenerList = new WeakEventListenerList<DebugListener>();

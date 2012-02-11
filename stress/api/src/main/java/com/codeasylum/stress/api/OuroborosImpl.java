@@ -42,7 +42,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class OuroborosImpl extends UnicastRemoteObject implements Ouroboros {
 
-  private static final AtomicInteger rmiPort = new AtomicInteger(0);
+  private static final AtomicInteger registryPort = new AtomicInteger(0);
 
   private final AtomicBoolean enabled = new AtomicBoolean(false);
 
@@ -54,7 +54,7 @@ public class OuroborosImpl extends UnicastRemoteObject implements Ouroboros {
     Context rmiContext;
 
     initContext = new InitialContext();
-    rmiContext = (Context)initContext.lookup("rmi://" + rmiHost + ':' + rmiPort.get());
+    rmiContext = (Context)initContext.lookup("rmi://" + rmiHost + ':' + registryPort.get());
     ouroboros = (Ouroboros)PortableRemoteObject.narrow(rmiContext.lookup(Ouroboros.class.getName()), Ouroboros.class);
     rmiContext.close();
     initContext.close();
@@ -62,15 +62,15 @@ public class OuroborosImpl extends UnicastRemoteObject implements Ouroboros {
     return ouroboros;
   }
 
-  public OuroborosImpl ()
+  public OuroborosImpl (int servicePort)
     throws RemoteException {
 
-    super();
+    super(0, new OuroborosRMIClientSocketFactory(), new OuroborosRMIServerSocketFactory(servicePort));
   }
 
-  public void setRmiPort (int port) {
+  public void setRegistryPort (int port) {
 
-    rmiPort.set(port);
+    registryPort.set(port);
   }
 
   @Override
@@ -112,7 +112,7 @@ public class OuroborosImpl extends UnicastRemoteObject implements Ouroboros {
     }
 
     if (init) {
-      new ClassPathXmlApplicationContext("com/codeasylum/stress/api/ouroboros.xml");
+      new ClassPathXmlApplicationContext("com/codeasylum/stress/api/logging.xml", "com/codeasylum/stress/api/ouroboros.xml");
     }
   }
 }
