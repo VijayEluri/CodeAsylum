@@ -32,7 +32,6 @@ import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import com.codeasylum.stress.api.BranchTask;
@@ -44,46 +43,35 @@ public class BranchTaskConfigPanel extends JPanel implements ItemListener, Docum
 
   private TestPlan testPlan;
   private BranchTask task;
-  private JTextField keyTextField;
-  private FormulaTextField valueTextField;
+  private FormulaTextField conditionTextField;
 
   public BranchTaskConfigPanel (TestPlan testPlan, BranchTask task) {
 
     GroupLayout groupLayout;
-    JLabel keyLabel;
-    JLabel valueLabel;
+    JLabel conditionLabel;
 
     this.testPlan = testPlan;
     this.task = task;
 
     setLayout(groupLayout = new GroupLayout(this));
 
-    keyLabel = new JLabel("Key", JLabel.LEFT);
-    keyLabel.setOpaque(true);
-    keyLabel.setBackground(ColorUtilities.INVERSE_TEXT_COLOR);
-    keyLabel.setForeground(ColorUtilities.TEXT_COLOR);
-    keyLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, ColorUtilities.TEXT_COLOR), BorderFactory.createMatteBorder(2, 2, 2, 2, ColorUtilities.INVERSE_TEXT_COLOR)));
+    conditionLabel = new JLabel("Condition", JLabel.LEFT);
+    conditionLabel.setOpaque(true);
+    conditionLabel.setBackground(ColorUtilities.INVERSE_TEXT_COLOR);
+    conditionLabel.setForeground(ColorUtilities.TEXT_COLOR);
+    conditionLabel.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, ColorUtilities.INVERSE_TEXT_COLOR));
 
-    valueLabel = new JLabel("Condition", JLabel.LEFT);
-    valueLabel.setOpaque(true);
-    valueLabel.setBackground(ColorUtilities.INVERSE_TEXT_COLOR);
-    valueLabel.setForeground(ColorUtilities.TEXT_COLOR);
-    valueLabel.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, ColorUtilities.INVERSE_TEXT_COLOR));
-
-    keyTextField = new JTextField((task.getKey() == null) ? "" : task.getKey());
-    keyTextField.getDocument().addDocumentListener(this);
-
-    valueTextField = new FormulaTextField(task.getBranchAttribute().getScript(), 15, task.getBranchAttribute().isFormula());
-    valueTextField.addItemListener(this);
-    valueTextField.addDocumentListener(this);
+    conditionTextField = new FormulaTextField(task.getBranchAttribute().getScript(), 15, task.getBranchAttribute().isFormula());
+    conditionTextField.addItemListener(this);
+    conditionTextField.addDocumentListener(this);
 
     groupLayout.setHorizontalGroup(groupLayout.createParallelGroup()
-      .addGroup(groupLayout.createSequentialGroup().addComponent(keyLabel, 200, 200, 200).addComponent(valueLabel, 200, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-      .addGroup(groupLayout.createSequentialGroup().addComponent(keyTextField, 200, 200, 200).addComponent(valueTextField)));
+      .addGroup(groupLayout.createSequentialGroup().addComponent(conditionLabel, 200, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      .addGroup(groupLayout.createSequentialGroup().addComponent(conditionTextField)));
 
     groupLayout.setVerticalGroup(groupLayout.createSequentialGroup()
-      .addGroup(groupLayout.createParallelGroup().addComponent(keyLabel).addComponent(valueLabel))
-      .addGroup(groupLayout.createParallelGroup().addComponent(keyTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addComponent(valueTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)));
+      .addGroup(groupLayout.createParallelGroup().addComponent(conditionLabel))
+      .addGroup(groupLayout.createParallelGroup().addComponent(conditionTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)));
   }
 
   @Override
@@ -93,33 +81,27 @@ public class BranchTaskConfigPanel extends JPanel implements ItemListener, Docum
     testPlan.setChanged(true);
   }
 
-  private void updateTaskAttribute (DocumentEvent documentEvent) {
+  private void updateTaskAttribute () {
 
-    if (documentEvent.getDocument() == keyTextField.getDocument()) {
-      task.setKey(keyTextField.getText().trim());
-    }
-    else {
-      task.getBranchAttribute().setScript(valueTextField.getText().trim());
-    }
-
+    task.getBranchAttribute().setScript(conditionTextField.getText().trim());
     testPlan.setChanged(true);
   }
 
   @Override
   public synchronized void insertUpdate (DocumentEvent documentEvent) {
 
-    updateTaskAttribute(documentEvent);
+    updateTaskAttribute();
   }
 
   @Override
   public synchronized void removeUpdate (DocumentEvent documentEvent) {
 
-    updateTaskAttribute(documentEvent);
+    updateTaskAttribute();
   }
 
   @Override
   public synchronized void changedUpdate (DocumentEvent documentEvent) {
 
-    updateTaskAttribute(documentEvent);
+    updateTaskAttribute();
   }
 }

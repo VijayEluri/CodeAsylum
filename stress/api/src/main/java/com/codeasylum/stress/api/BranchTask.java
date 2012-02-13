@@ -29,8 +29,7 @@ package com.codeasylum.stress.api;
 public class BranchTask extends AbstractTask implements SingularContainer {
 
   private Task task;
-  private Attribute<String> branchAttribute = new Attribute<String>(String.class, "", false);
-  private String key;
+  private Attribute<Boolean> branchAttribute = new Attribute<Boolean>(Boolean.class, "false", false);
 
   public BranchTask () {
 
@@ -41,8 +40,7 @@ public class BranchTask extends AbstractTask implements SingularContainer {
     super(branchTask);
 
     task = (branchTask.getTask() == null) ? null : branchTask.getTask().deepCopy();
-    key = branchTask.getKey();
-    branchAttribute = new Attribute<String>(String.class, branchTask.getBranchAttribute());
+    branchAttribute = new Attribute<Boolean>(Boolean.class, branchTask.getBranchAttribute());
   }
 
   public Task getTask () {
@@ -55,22 +53,12 @@ public class BranchTask extends AbstractTask implements SingularContainer {
     this.task = task;
   }
 
-  public String getKey () {
-
-    return key;
-  }
-
-  public void setKey (String key) {
-
-    this.key = key;
-  }
-
-  public Attribute<String> getBranchAttribute () {
+  public Attribute<Boolean> getBranchAttribute () {
 
     return branchAttribute;
   }
 
-  public void setBranchAttribute (Attribute<String> branchAttribute) {
+  public void setBranchAttribute (Attribute<Boolean> branchAttribute) {
 
     this.branchAttribute = branchAttribute;
   }
@@ -80,7 +68,7 @@ public class BranchTask extends AbstractTask implements SingularContainer {
 
     if (isEnabled() && ouroboros.isEnabled()) {
       if ((task != null) && task.isEnabled()) {
-        if (PropertyContext.valueEquals(key, branchAttribute.get(this))) {
+        if (branchAttribute.get(this)) {
           task.execute(hostId, ouroboros, exchangeTransport);
         }
       }
