@@ -61,7 +61,7 @@ public class BranchTaskConfigPanel extends JPanel implements ItemListener, Docum
     conditionLabel.setForeground(ColorUtilities.TEXT_COLOR);
     conditionLabel.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, ColorUtilities.INVERSE_TEXT_COLOR));
 
-    conditionTextField = new FormulaTextField(task.getBranchAttribute().getScript(), 15, task.getBranchAttribute().isFormula());
+    conditionTextField = new FormulaTextField(task.getConditionAttribute().getScript(), 15, task.getConditionAttribute().isFormula());
     conditionTextField.addItemListener(this);
     conditionTextField.addDocumentListener(this);
 
@@ -77,13 +77,13 @@ public class BranchTaskConfigPanel extends JPanel implements ItemListener, Docum
   @Override
   public void itemStateChanged (ItemEvent itemEvent) {
 
-    task.getBranchAttribute().setFormula(itemEvent.getStateChange() == ItemEvent.SELECTED);
+    task.getConditionAttribute().setFormula(itemEvent.getStateChange() == ItemEvent.SELECTED);
     testPlan.setChanged(true);
   }
 
   private void updateTaskAttribute () {
 
-    task.getBranchAttribute().setScript(conditionTextField.getText().trim());
+    task.getConditionAttribute().setScript(conditionTextField.getText().trim());
     testPlan.setChanged(true);
   }
 

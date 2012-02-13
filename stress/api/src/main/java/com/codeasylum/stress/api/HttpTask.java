@@ -337,6 +337,9 @@ public class HttpTask extends AbstractTask {
                   PropertyContext.put(regexpEntry.getKey() + '.' + groupIndex, regexpMatcher.group(groupIndex));
                 }
               }
+              else {
+                PropertyContext.put(regexpEntry.getKey(), "false");
+              }
             }
           }
         }
