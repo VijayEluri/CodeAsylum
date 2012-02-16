@@ -86,10 +86,10 @@ public class OuroborosImpl extends UnicastRemoteObject implements Ouroboros {
   }
 
   @Override
-  public void execute (String hostId, RootTask rootTask, ExchangeTransport exchangeTransport)
+  public void execute (int hostIndex, String hostId, RootTask rootTask, ExchangeTransport exchangeTransport)
     throws Exception {
 
-    rootTask.execute(hostId, this, exchangeTransport);
+    rootTask.execute(hostIndex, hostId, this, exchangeTransport);
   }
 
   @Override

@@ -90,7 +90,7 @@ public class TimedLoopTask extends AbstractTask implements SingularContainer {
   }
 
   @Override
-  public void execute (String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws Exception {
 
     if (isEnabled() && ouroboros.isEnabled()) {
@@ -108,7 +108,7 @@ public class TimedLoopTask extends AbstractTask implements SingularContainer {
               PropertyContext.put(key, String.valueOf(count++));
             }
 
-            task.deepCopy().execute(hostId, ouroboros, exchangeTransport);
+            task.deepCopy().execute(hostIndex, hostId, ouroboros, exchangeTransport);
           }
         }
       }

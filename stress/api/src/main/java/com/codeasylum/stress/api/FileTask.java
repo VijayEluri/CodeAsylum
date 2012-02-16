@@ -83,7 +83,7 @@ public class FileTask extends AbstractTask {
   }
 
   @Override
-  public void execute (String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws IOException, ScriptInterpolationException {
 
     if (isEnabled() && ouroboros.isEnabled()) {

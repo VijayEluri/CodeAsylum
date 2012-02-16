@@ -83,12 +83,12 @@ public class ReplicationTask extends AbstractTask implements SingularContainer, 
   }
 
   @Override
-  public void execute (String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws Exception {
 
     if (isEnabled() && ouroboros.isEnabled()) {
       if ((task != null) && task.isEnabled()) {
-        task.execute(hostId, ouroboros, exchangeTransport);
+        task.execute(hostIndex, hostId, ouroboros, exchangeTransport);
       }
     }
   }

@@ -203,7 +203,7 @@ public class TestExecutor implements ExchangeListener {
       }
 
       for (OuroborosCart ouroborosCart : ouroborosCarts) {
-        new Thread(executeWorkers[workerIndex++] = new ExecuteWorker(ouroborosCart.getHostId(), ouroborosCart.getOuroboros(), terminationLatch)).start();
+        new Thread(executeWorkers[workerIndex] = new ExecuteWorker(workerIndex++, ouroborosCart.getHostId(), ouroborosCart.getOuroboros(), terminationLatch)).start();
       }
 
       terminationLatch.await();
@@ -371,9 +371,11 @@ public class TestExecutor implements ExchangeListener {
     private CountDownLatch terminationLatch;
     private Ouroboros ouroboros;
     private String hostId;
+    private int hostIndex;
 
-    public ExecuteWorker (String hostId, Ouroboros ouroboros, CountDownLatch terminationLatch) {
+    public ExecuteWorker (int hostIndex, String hostId, Ouroboros ouroboros, CountDownLatch terminationLatch) {
 
+      this.hostIndex = hostIndex;
       this.hostId = hostId;
       this.ouroboros = ouroboros;
       this.terminationLatch = terminationLatch;
@@ -389,7 +391,7 @@ public class TestExecutor implements ExchangeListener {
 
       try {
         ouroboros.setEnabled(true);
-        ouroboros.execute(hostId, testPlan.getRootTask(), exchangeTransport);
+        ouroboros.execute(hostIndex, hostId, testPlan.getRootTask(), exchangeTransport);
       }
       catch (Exception exception) {
         this.exception = exception;
