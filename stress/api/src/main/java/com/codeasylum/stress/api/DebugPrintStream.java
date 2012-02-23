@@ -26,29 +26,14 @@
  */
 package com.codeasylum.stress.api;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.io.PrintStream;
 
-public interface ExchangeTransport extends Remote {
+public class DebugPrintStream extends PrintStream {
 
-  public abstract void clear ()
-    throws RemoteException;
+  private ExchangeTransport exchangeTransport;
 
-  public abstract void addExchangeListener (ExchangeListener exchangeListener)
-    throws RemoteException;
+  public DebugPrintStream (String hostId, Class<? extends Task> taskClass, String taskName, ExchangeTransport exchangeTransport) {
 
-  public abstract void removeExchangeListener (ExchangeListener exchangeListener)
-    throws RemoteException;
-
-  public abstract void addDebugListener (DebugListener debugListener)
-    throws RemoteException;
-
-  public abstract void removeDebugListener (DebugListener debugListener)
-    throws RemoteException;
-
-  public abstract void send (Exchange<? extends Task> exchange)
-    throws RemoteException;
-
-  public abstract void send (Debug debug)
-    throws RemoteException;
+    super(new ExchangeTransportOutputStream(hostId, taskClass, taskName, exchangeTransport));
+  }
 }

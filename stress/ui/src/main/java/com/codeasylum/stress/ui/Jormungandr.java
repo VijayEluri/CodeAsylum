@@ -38,6 +38,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.xml.parsers.ParserConfigurationException;
+import com.codeasylum.stress.api.ExchangeTransport;
+import com.codeasylum.stress.api.ExchangeTransportImpl;
 import com.codeasylum.stress.api.ExtendedTaskLoader;
 import com.codeasylum.stress.api.RootTask;
 import com.codeasylum.stress.api.TestExecutor;
@@ -56,6 +58,7 @@ import org.xml.sax.SAXException;
 
 public class Jormungandr extends JFrame implements WindowListener, TestExecutorListener {
 
+  private ExchangeTransport exchangeTransport;
   private MenuDelegateFactory menuDelegateFactory;
   private TaskPalette palette;
   private JormungandrMenuHandler menuHandler;
@@ -83,9 +86,10 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
 
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
+    exchangeTransport = new ExchangeTransportImpl(exchangeTransportRMIPort);
     menuHandler = new JormungandrMenuHandler(this, menuDelegateFactory);
 
-    testExecutor = new TestExecutor(testPlan = new TestPlan(), exchangeTransportRMIPort);
+    testExecutor = new TestExecutor(testPlan = new TestPlan(), exchangeTransport);
     testExecutor.addTestExecutorListener(this);
     testPlan.getRootTask().setName(palette.getAvatar(RootTask.class).getName());
 
@@ -146,7 +150,7 @@ public class Jormungandr extends JFrame implements WindowListener, TestExecutorL
   public synchronized void setTestPlan (TestPlan testPlan)
     throws RemoteException {
 
-    testExecutor = new TestExecutor(testPlan, exchangeTransportRMIPort);
+    testExecutor = new TestExecutor(testPlan, exchangeTransport);
     testExecutor.addTestExecutorListener(this);
 
     testPanel.setTestPlan(testPlan);

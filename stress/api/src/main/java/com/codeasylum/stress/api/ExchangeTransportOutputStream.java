@@ -26,29 +26,36 @@
  */
 package com.codeasylum.stress.api;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.io.IOException;
+import java.io.OutputStream;
 
-public interface ExchangeTransport extends Remote {
+public class ExchangeTransportOutputStream extends OutputStream {
 
-  public abstract void clear ()
-    throws RemoteException;
+  private ExchangeTransport exchangeTransport;
+  private StringBuilder messageBuilder;
+  private Class<? extends Task> taskClass;
+  private String hostId;
+  private String taskName;
 
-  public abstract void addExchangeListener (ExchangeListener exchangeListener)
-    throws RemoteException;
+  public ExchangeTransportOutputStream (String hostId, Class<? extends Task> taskClass, String taskName, ExchangeTransport exchangeTransport) {
 
-  public abstract void removeExchangeListener (ExchangeListener exchangeListener)
-    throws RemoteException;
+    this.hostId = hostId;
+    this.taskClass = taskClass;
+    this.taskName = taskName;
+    this.exchangeTransport = exchangeTransport;
 
-  public abstract void addDebugListener (DebugListener debugListener)
-    throws RemoteException;
+    messageBuilder = new StringBuilder();
+  }
 
-  public abstract void removeDebugListener (DebugListener debugListener)
-    throws RemoteException;
+  @Override
+  public void write (int b) throws IOException {
 
-  public abstract void send (Exchange<? extends Task> exchange)
-    throws RemoteException;
-
-  public abstract void send (Debug debug)
-    throws RemoteException;
+    if (b == Character.LINE_SEPARATOR) {
+      exchangeTransport.send(new Debug(hostId, taskClass, taskName, messageBuilder.toString()));
+      messageBuilder.delete(0, messageBuilder.length());
+    }
+    else {
+      messageBuilder.append(b);
+    }
+  }
 }

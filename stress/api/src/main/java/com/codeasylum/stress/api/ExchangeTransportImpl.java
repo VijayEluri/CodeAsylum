@@ -55,6 +55,14 @@ public class ExchangeTransportImpl extends UnicastRemoteObject implements Exchan
     new Thread(new DebugPipeline()).start();
   }
 
+  public synchronized void clear () {
+
+    exchangeListenerList.removeAllListeners();
+    debugListenerList.removeAllListeners();
+    exchangeQueue.clear();
+    debugQueue.clear();
+  }
+
   public void send (Exchange<? extends Task> exchange) {
 
     exchangeQueue.add(exchange);
