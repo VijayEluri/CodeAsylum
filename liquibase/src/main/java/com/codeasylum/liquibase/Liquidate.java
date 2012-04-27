@@ -60,7 +60,7 @@ import org.smallmind.nutsnbolts.lang.FormattedRuntimeException;
 import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
 import org.smallmind.nutsnbolts.util.EnumerationIterator;
 import org.smallmind.nutsnbolts.util.StringUtilities;
-import org.smallmind.persistence.orm.sql.DriverManagerDataSource;
+import org.smallmind.persistence.sql.DriverManagerDataSource;
 import org.smallmind.swing.button.EventCoalescingButtonGroup;
 import org.smallmind.swing.button.GroupedActionEvent;
 import org.smallmind.swing.dialog.InfoDialog;
