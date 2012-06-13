@@ -29,23 +29,23 @@ package com.codeasylum.stress.api;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import com.codeasylum.stress.api.visualization.DelayTaskConfigPanel;
+import com.codeasylum.stress.api.visualization.CounterTaskConfigPanel;
 
-public class DelayTaskAvatar extends AbstractTaskAvatar<DelayTask> {
+public class CounterTaskAvatar extends AbstractTaskAvatar<CounterTask> {
 
-  private static final ImageIcon ICON_24 = new ImageIcon(ClassLoader.getSystemResource("com/codeasylum/stress/api/delay_24.png"));
-  private static final ImageIcon ICON_32 = new ImageIcon(ClassLoader.getSystemResource("com/codeasylum/stress/api/delay_32.png"));
+  private static final ImageIcon ICON_24 = new ImageIcon(ClassLoader.getSystemResource("com/codeasylum/stress/api/counter_24.png"));
+  private static final ImageIcon ICON_32 = new ImageIcon(ClassLoader.getSystemResource("com/codeasylum/stress/api/counter_32.png"));
 
   @Override
-  public Class<DelayTask> getTaskClass () {
+  public Class<CounterTask> getTaskClass () {
 
-    return DelayTask.class;
+    return CounterTask.class;
   }
 
   @Override
   public String getName () {
 
-    return "Delay Timer";
+    return "Counter";
   }
 
   @Override
@@ -73,8 +73,8 @@ public class DelayTaskAvatar extends AbstractTaskAvatar<DelayTask> {
   }
 
   @Override
-  public JComponent getVisualization (JFrame parentFrame, TestExecutor testExecutor, DelayTask task) {
+  public JComponent getVisualization (JFrame parentFrame, TestExecutor testExecutor, CounterTask task) {
 
-    return new DelayTaskConfigPanel(testExecutor.getTestPlan(), task);
+    return new CounterTaskConfigPanel(testExecutor.getTestPlan(), task);
   }
 }

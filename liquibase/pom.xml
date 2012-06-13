@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.codeasylum</groupId>
     <artifactId>codeasylum</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
   </parent>
   <artifactId>codeasylum-liquibase</artifactId>
   <packaging>jar</packaging>

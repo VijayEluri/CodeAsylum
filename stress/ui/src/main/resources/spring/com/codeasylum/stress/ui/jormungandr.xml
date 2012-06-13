@@ -34,6 +34,7 @@
           <list>
             <value>com.codeasylum.stress.api.BranchTask</value>
             <value>com.codeasylum.stress.api.ChoiceTask</value>
+            <value>com.codeasylum.stress.api.CounterTask</value>
             <value>com.codeasylum.stress.api.DebugTimerTask</value>
             <value>com.codeasylum.stress.api.DebugWriterTask</value>
             <value>com.codeasylum.stress.api.DelayTask</value>

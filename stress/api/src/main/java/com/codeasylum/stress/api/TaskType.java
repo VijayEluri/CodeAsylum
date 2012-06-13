@@ -28,7 +28,7 @@ package com.codeasylum.stress.api;
 
 public enum TaskType {
 
-  CONFIGURATION("Configuration"), CONTROLLER("Controls"), DEBUG("Debuggers"), LOOP("Loops"), REQUEST("Requests"), SAMPLER("Samplers"), TIMER("Timers");
+  CONFIGURATION("Configuration"), CONTROLLER("Controls"), DEBUG("Debuggers"), LOOP("Loops"), REQUEST("Requests"), SAMPLER("Samplers"), UTILITY("Utilities");
 
   private String display;
 
