@@ -46,7 +46,7 @@ public class OuroborosRMIServerSocketFactory implements Serializable, RMIServerS
   public ServerSocket createServerSocket (int port)
     throws IOException {
 
-    LoggerManager.getLogger(OuroborosRMIServerSocketFactory.class).info("Creating RMI server socket(%d)...", port);
+    LoggerManager.getLogger(OuroborosRMIServerSocketFactory.class).info("Creating RMI server socket(%d)...", (port == 0) ? preferredPort : port);
 
     return RMISocketFactory.getDefaultSocketFactory().createServerSocket((port == 0) ? preferredPort : port);
   }
