@@ -234,7 +234,7 @@
         <plugin>
           <groupId>org.smallmind</groupId>
           <artifactId>smallmind-license-plugin</artifactId>
-          <version>1.4.5-SNAPSHOT</version>
+          <version>1.4.6-SNAPSHOT</version>
           <executions>
             <execution>
               <id>generate</id>
