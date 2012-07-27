@@ -51,6 +51,7 @@ public class SaveAsDelegate implements MenuDelegate {
       }
 
       menuHandler.getDelegate("File/Save...").execute(menuHandler);
+      menuHandler.getParentFrame().setTitle("Jormungandr - " + ((JormungandrMenuHandler)menuHandler).getJdrFile().getName());
     }
   }
 }

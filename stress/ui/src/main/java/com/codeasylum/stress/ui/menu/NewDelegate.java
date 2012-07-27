@@ -67,6 +67,7 @@ public class NewDelegate implements MenuDelegate {
         testPlan = new TestPlan();
         testPlan.getRootTask().setName(((JormungandrMenuHandler)menuHandler).getPalette().getAvatar(RootTask.class).getName());
         ((JormungandrMenuHandler)menuHandler).setTestPlan(testPlan);
+        menuHandler.getParentFrame().setTitle("Jormungandr");
       }
       catch (Exception exception) {
         JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);

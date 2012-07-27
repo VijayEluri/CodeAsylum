@@ -56,6 +56,7 @@ public class OpenDelegate implements MenuDelegate {
         jdrReader.close();
 
         ((JormungandrMenuHandler)menuHandler).setJdrFile(fileChooser.getChosenFile());
+        menuHandler.getParentFrame().setTitle("Jormungandr - " + ((JormungandrMenuHandler)menuHandler).getJdrFile().getName());
       }
       catch (Exception exception) {
         JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);
