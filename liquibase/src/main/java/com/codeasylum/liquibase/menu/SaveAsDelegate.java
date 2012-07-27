@@ -51,6 +51,7 @@ public class SaveAsDelegate implements MenuDelegate {
       }
 
       menuHandler.getDelegate("File/Save...").execute(menuHandler);
+      menuHandler.getParentFrame().setTitle("Liquidate - " + ((LiquidateMenuHandler)menuHandler).getLqdFile().getName());
     }
   }
 }

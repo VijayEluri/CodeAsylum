@@ -56,6 +56,7 @@ public class OpenDelegate implements MenuDelegate {
         jdrReader.close();
 
         ((LiquidateMenuHandler)menuHandler).setLqdFile(fileChooser.getChosenFile());
+        menuHandler.getParentFrame().setTitle("Liquidate - " + ((LiquidateMenuHandler)menuHandler).getLqdFile().getName());
       }
       catch (Exception exception) {
         JavaErrorDialog.showJavaErrorDialog(menuHandler.getParentFrame(), this, exception);

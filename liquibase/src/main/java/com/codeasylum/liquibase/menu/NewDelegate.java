@@ -59,6 +59,7 @@ public class NewDelegate implements MenuDelegate {
     if (allowNew) {
       ((LiquidateMenuHandler)menuHandler).setLqdFile(null);
       ((LiquidateMenuHandler)menuHandler).setConfig(new LiquidateConfig());
+      menuHandler.getParentFrame().setTitle("Liquidate");
     }
   }
 }
