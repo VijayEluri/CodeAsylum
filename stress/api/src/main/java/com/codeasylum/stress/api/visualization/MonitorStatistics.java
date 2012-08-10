@@ -26,73 +26,56 @@
  */
 package com.codeasylum.stress.api.visualization;
 
+import java.util.concurrent.TimeUnit;
+import org.smallmind.instrument.Clocks;
+import org.smallmind.instrument.Meter;
+import org.smallmind.instrument.Speedometer;
+
 public class MonitorStatistics {
 
-  private double responseTime;
-  private long startTime;
-  private int successCount;
-  private int failureCount;
+  private Speedometer responseSpeedometer = new Speedometer(1, TimeUnit.SECONDS, Clocks.EPOCH.getClock());
+  private Meter failureMeter = new Meter(1, TimeUnit.SECONDS, Clocks.EPOCH.getClock());
 
   public synchronized void reset () {
 
-    successCount = 0;
-    failureCount = 0;
-    responseTime = 0;
-    startTime = System.currentTimeMillis();
+    failureMeter.clear();
+    responseSpeedometer.clear();
   }
 
   public synchronized void incFailureCount () {
 
-    failureCount++;
+    failureMeter.mark();
   }
 
   public synchronized void addExchange (long responseTime) {
 
-    successCount++;
-    this.responseTime += responseTime;
+    responseSpeedometer.update(responseTime);
   }
 
   public synchronized double getAverageResponseTime () {
 
-    if (successCount == 0) {
-
-      return 0D;
-    }
-
-    return responseTime / successCount;
+    return responseSpeedometer.getOneMinuteAvgVelocity();
   }
 
   public synchronized double getAverageRequestCount () {
 
-    long elapsedTime;
-
-    if ((elapsedTime = System.currentTimeMillis() - startTime) == 0) {
-
-      return 0D;
-    }
-
-    return (successCount + failureCount) * 1000D / elapsedTime;
+    return responseSpeedometer.getOneMinuteAvgRate();
   }
 
-  public synchronized int getTotalFailureCount () {
+  public synchronized long getTotalFailureCount () {
 
-    return failureCount;
+    return failureMeter.getCount();
   }
 
   public synchronized double getAverageFailureCount () {
 
-    long elapsedTime;
-
-    if ((elapsedTime = System.currentTimeMillis() - startTime) == 0) {
-
-      return 0D;
-    }
-
-    return failureCount * 1000D / elapsedTime;
+    return failureMeter.getAverageRate();
   }
 
   public synchronized double getFailurePercentage () {
 
-    return (failureCount * 100D) / (successCount + failureCount);
+    long failureCount;
+
+    return ((failureCount = failureMeter.getCount()) * 100D) / (responseSpeedometer.getCount() + failureCount);
   }
 }
