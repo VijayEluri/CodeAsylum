@@ -68,7 +68,7 @@ public class PropertyContext {
       return "null".equalsIgnoreCase(matchingValue) || "false".equalsIgnoreCase(matchingValue);
     }
 
-    return "true".equalsIgnoreCase(matchingValue) || value.equals(matchingValue);
+    return "?".equalsIgnoreCase(matchingValue) || value.equals(matchingValue);
   }
 
   public static boolean containsKey (String key) {
