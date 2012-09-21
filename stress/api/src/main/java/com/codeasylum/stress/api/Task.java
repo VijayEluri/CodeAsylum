@@ -41,7 +41,7 @@ public interface Task extends Serializable {
 
   public abstract void setEnabled (boolean enabled);
 
-  public abstract void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public abstract void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws Exception;
 
   public abstract Task deepCopy ();

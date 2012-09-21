@@ -52,14 +52,14 @@ public class RootTask extends AbstractTask implements SingularContainer {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (long controllerTime, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws Exception {
 
     if (isEnabled() && ouroboros.isEnabled()) {
       if ((task != null) && task.isEnabled()) {
         PropertyContext.put("com.codeasylum.test.hostIndex", String.valueOf(hostIndex));
         PropertyContext.put("com.codeasylum.test.hostId", hostId);
-        task.execute(hostIndex, hostId, ouroboros, exchangeTransport);
+        task.execute(controllerTime, hostIndex, hostId, ouroboros, exchangeTransport);
       }
     }
   }

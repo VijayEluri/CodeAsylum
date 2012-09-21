@@ -37,6 +37,6 @@ public interface Ouroboros extends Remote {
   public abstract void setEnabled (boolean enabled)
     throws RemoteException;
 
-  public abstract void execute (int hostIndex, String hostId, RootTask rootTask, ExchangeTransport exchangeTransport)
+  public abstract void execute (long controllerTime, int hostIndex, String hostId, RootTask rootTask, ExchangeTransport exchangeTransport)
     throws Exception;
 }

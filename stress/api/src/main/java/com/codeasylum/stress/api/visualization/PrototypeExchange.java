@@ -58,12 +58,14 @@ public class PrototypeExchange implements Exchange<Task> {
   @Override
   public long getStartMillis () {
 
+    // in practice should add any time differential
     return System.currentTimeMillis();
   }
 
   @Override
   public long getStopMillis () {
 
+    // in practice should add any time differential
     return System.currentTimeMillis();
   }
 

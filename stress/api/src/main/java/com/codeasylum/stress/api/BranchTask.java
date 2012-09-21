@@ -64,12 +64,12 @@ public class BranchTask extends AbstractTask implements SingularContainer {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport) throws Exception {
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport) throws Exception {
 
     if (isEnabled() && ouroboros.isEnabled()) {
       if ((task != null) && task.isEnabled()) {
         if (conditionAttribute.get(this)) {
-          task.execute(hostIndex, hostId, ouroboros, exchangeTransport);
+          task.execute(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport);
         }
       }
     }

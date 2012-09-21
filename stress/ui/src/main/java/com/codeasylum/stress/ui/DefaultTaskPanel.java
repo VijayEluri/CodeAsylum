@@ -39,7 +39,6 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreePath;
 import com.codeasylum.stress.api.Task;
 import com.codeasylum.stress.api.TestPlan;
-import org.smallmind.swing.Separator;
 
 public class DefaultTaskPanel extends JPanel implements DocumentListener {
 
@@ -56,7 +55,7 @@ public class DefaultTaskPanel extends JPanel implements DocumentListener {
     GroupLayout.ParallelGroup horizontalGroup;
     GroupLayout.SequentialGroup verticalGroup;
     JLabel taskNameLabel;
-    Separator separator;
+    org.smallmind.swing.Separator separator;
 
     this.testPlan = testPlan;
     this.task = task;
@@ -64,7 +63,7 @@ public class DefaultTaskPanel extends JPanel implements DocumentListener {
     this.testTree = testTree;
 
     taskNameLabel = new JLabel("Title:");
-    separator = new Separator();
+    separator = new org.smallmind.swing.Separator();
 
     taskNameTextField = new JTextField(task.getName());
     taskNameTextField.getDocument().addDocumentListener(this);

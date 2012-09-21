@@ -57,7 +57,7 @@ public class PropertyTask extends AbstractTask {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws RemoteException {
 
     if (isEnabled() && ouroboros.isEnabled()) {

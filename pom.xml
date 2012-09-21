@@ -3,7 +3,7 @@
 
   <groupId>com.codeasylum</groupId>
   <artifactId>codeasylum</artifactId>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
   <packaging>pom</packaging>
   <name>Parent</name>
   <description>Parent POM</description>
@@ -80,7 +80,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <nexus.release.repository.id>nexus</nexus.release.repository.id>
     <nexus.release.repository.url>${nexus.server}/nexus/content/repositories/releases</nexus.release.repository.url>
+    <smallmind.version>1.5.2-SNAPSHOT</smallmind.version>
   </properties>
+
   <modules>
     <module>review</module>
     <module>stress</module>
@@ -102,37 +104,37 @@
       <dependency>
         <groupId>org.smallmind</groupId>
         <artifactId>smallmind-nutsnbolts</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>${smallmind.version}</version>
       </dependency>
       <dependency>
         <groupId>org.smallmind</groupId>
         <artifactId>smallmind-instrument</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>${smallmind.version}</version>
       </dependency>
       <dependency>
         <groupId>org.smallmind</groupId>
         <artifactId>scribe-pen</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>${smallmind.version}</version>
       </dependency>
       <dependency>
         <groupId>org.smallmind</groupId>
         <artifactId>scribe-ink-indigenous</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>${smallmind.version}</version>
       </dependency>
       <dependency>
         <groupId>org.smallmind</groupId>
         <artifactId>smallmind-persistence</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>${smallmind.version}</version>
       </dependency>
       <dependency>
         <groupId>org.smallmind</groupId>
         <artifactId>smallmind-swing</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>${smallmind.version}</version>
       </dependency>
       <dependency>
         <groupId>org.smallmind</groupId>
         <artifactId>smallmind-liquibase</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>${smallmind.version}</version>
       </dependency>
       <dependency>
         <groupId>org.testng</groupId>
@@ -142,12 +144,12 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>3.0.3.RELEASE</version>
+        <version>3.1.2.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
-        <version>3.0.3.RELEASE</version>
+        <version>3.1.2.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.beanshell</groupId>
@@ -239,7 +241,7 @@
         <plugin>
           <groupId>org.smallmind</groupId>
           <artifactId>smallmind-license-plugin</artifactId>
-          <version>1.4.6-SNAPSHOT</version>
+          <version>${smallmind.version}</version>
           <executions>
             <execution>
               <id>generate</id>

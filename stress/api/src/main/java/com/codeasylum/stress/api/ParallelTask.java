@@ -42,7 +42,7 @@ public class ParallelTask extends AbstractPluralContainer {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws Exception {
 
     if (isEnabled() && ouroboros.isEnabled()) {
@@ -69,12 +69,12 @@ public class ParallelTask extends AbstractPluralContainer {
       workerList = new LinkedList<ParallelWorker>();
       for (Task task : enabledList) {
         if (!(task instanceof Replicated)) {
-          workerList.add(parallelWorker = new ParallelWorker(hostIndex, hostId, ouroboros, exchangeTransport, task, -1, startLatch, stopLatch));
+          workerList.add(parallelWorker = new ParallelWorker(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport, task, -1, startLatch, stopLatch));
           new Thread(parallelWorker).start();
         }
         else {
           for (int count = 0; count < ((Replicated)task).size(); count++) {
-            workerList.add(parallelWorker = new ParallelWorker(hostIndex, hostId, ouroboros, exchangeTransport, task, count, startLatch, stopLatch));
+            workerList.add(parallelWorker = new ParallelWorker(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport, task, count, startLatch, stopLatch));
             new Thread(parallelWorker).start();
           }
         }
@@ -100,11 +100,13 @@ public class ParallelTask extends AbstractPluralContainer {
     private ExchangeTransport exchangeTransport;
     private Task task;
     private String hostId;
+    private long timeDifferential;
     private int hostIndex;
     private int taskIndex;
 
-    private ParallelWorker (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport, Task task, int taskIndex, CountDownLatch startLatch, CountDownLatch stopLatch) {
+    private ParallelWorker (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport, Task task, int taskIndex, CountDownLatch startLatch, CountDownLatch stopLatch) {
 
+      this.timeDifferential = timeDifferential;
       this.hostIndex = hostIndex;
       this.hostId = hostId;
       this.ouroboros = ouroboros;
@@ -134,7 +136,7 @@ public class ParallelTask extends AbstractPluralContainer {
             }
           }
 
-          task.deepCopy().execute(hostIndex, hostId, ouroboros, exchangeTransport);
+          task.deepCopy().execute(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport);
         }
       }
       catch (Exception exception) {

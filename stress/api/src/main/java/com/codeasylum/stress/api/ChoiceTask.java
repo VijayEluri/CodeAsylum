@@ -59,7 +59,7 @@ public class ChoiceTask extends AbstractPluralContainer {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport) throws Exception {
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport) throws Exception {
 
     LinkedList<Task> taskList = new LinkedList<Task>();
     boolean tasked = false;
@@ -88,13 +88,13 @@ public class ChoiceTask extends AbstractPluralContainer {
 
     for (int index = 0; index < percentages.length; index++) {
       if (choiceRandom < percentages[index]) {
-        taskList.get(index).deepCopy().execute(hostIndex, hostId, ouroboros, exchangeTransport);
+        taskList.get(index).deepCopy().execute(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport);
         tasked = true;
         break;
       }
     }
     if (!tasked) {
-      taskList.getLast().deepCopy().execute(hostIndex, hostId, ouroboros, exchangeTransport);
+      taskList.getLast().deepCopy().execute(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport);
     }
   }
 

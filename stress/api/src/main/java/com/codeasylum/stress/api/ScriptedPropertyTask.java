@@ -68,7 +68,7 @@ public class ScriptedPropertyTask extends AbstractTask {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws ScriptInterpolationException {
 
     PropertyContext.put(key, valueAttribute.get(this));

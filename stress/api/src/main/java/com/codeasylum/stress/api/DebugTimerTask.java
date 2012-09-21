@@ -52,7 +52,7 @@ public class DebugTimerTask extends AbstractTask implements SingularContainer {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws Exception {
 
     if (isEnabled() && ouroboros.isEnabled()) {
@@ -62,7 +62,7 @@ public class DebugTimerTask extends AbstractTask implements SingularContainer {
         long stop;
 
         if (task != null) {
-          task.execute(hostIndex, hostId, ouroboros, exchangeTransport);
+          task.execute(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport);
         }
 
         stop = System.currentTimeMillis();

@@ -392,7 +392,7 @@ public class TestExecutor implements ExchangeListener {
 
       try {
         ouroboros.setEnabled(true);
-        ouroboros.execute(hostIndex, hostId, testPlan.getRootTask(), exchangeTransport);
+        ouroboros.execute(System.currentTimeMillis(), hostIndex, hostId, testPlan.getRootTask(), exchangeTransport);
       }
       catch (Exception exception) {
         this.exception = exception;

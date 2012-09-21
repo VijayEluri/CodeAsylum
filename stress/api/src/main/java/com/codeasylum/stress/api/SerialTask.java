@@ -39,7 +39,7 @@ public class SerialTask extends AbstractPluralContainer {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws Exception {
 
     if (isEnabled() && ouroboros.isEnabled()) {
@@ -50,7 +50,7 @@ public class SerialTask extends AbstractPluralContainer {
         else {
           if (task.isEnabled()) {
             if (!(task instanceof Replicated)) {
-              task.deepCopy().execute(hostIndex, hostId, ouroboros, exchangeTransport);
+              task.deepCopy().execute(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport);
             }
             else {
               if (((Replicated)task).size() == 0) {
@@ -69,7 +69,7 @@ public class SerialTask extends AbstractPluralContainer {
                     PropertyContext.put(key, String.valueOf(count));
                   }
 
-                  task.deepCopy().execute(hostIndex, hostId, ouroboros, exchangeTransport);
+                  task.deepCopy().execute(timeDifferential, hostIndex, hostId, ouroboros, exchangeTransport);
                 }
               }
             }

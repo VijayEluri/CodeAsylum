@@ -192,7 +192,7 @@ public class HttpTask extends AbstractTask {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws IOException, ScriptInterpolationException {
 
     if (isEnabled() && ouroboros.isEnabled()) {
@@ -357,10 +357,10 @@ public class HttpTask extends AbstractTask {
           PropertyContext.put(responseKey, new String(responseCarrier.getRawResponse()));
         }
 
-        exchangeTransport.send(new HttpExchange(validated && (responseCarrier.getResponseCode() == 200), hostId, getName(), startTime, responseCarrier.getResponseTimestamp(), responseCarrier.getResponseCode(), requestMimeType, requestCharSet, requestBody, responseCarrier.getResponseMimeType(), responseCarrier.getResponseCharSet(), responseCarrier.getRawResponse()));
+        exchangeTransport.send(new HttpExchange(validated && (responseCarrier.getResponseCode() == 200), hostId, getName(), startTime + timeDifferential, responseCarrier.getResponseTimestamp() + timeDifferential, responseCarrier.getResponseCode(), requestMimeType, requestCharSet, requestBody, responseCarrier.getResponseMimeType(), responseCarrier.getResponseCharSet(), responseCarrier.getRawResponse()));
       }
       catch (Exception exception) {
-        exchangeTransport.send(new HttpExchange(false, hostId, getName(), startTime, System.currentTimeMillis(), 503, requestMimeType, requestCharSet, requestBody, "text/plain", "utf-8", StackTraceUtilities.obtainStackTraceAsString(exception).getBytes()));
+        exchangeTransport.send(new HttpExchange(false, hostId, getName(), startTime + timeDifferential, System.currentTimeMillis() + timeDifferential, 503, requestMimeType, requestCharSet, requestBody, "text/plain", "utf-8", StackTraceUtilities.obtainStackTraceAsString(exception).getBytes()));
 
         if (!regexpMap.isEmpty()) {
           for (Map.Entry<String, String> regexpEntry : regexpMap.entrySet()) {

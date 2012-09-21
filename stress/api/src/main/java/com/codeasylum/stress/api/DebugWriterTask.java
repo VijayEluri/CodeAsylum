@@ -52,7 +52,7 @@ public class DebugWriterTask extends AbstractTask {
   }
 
   @Override
-  public void execute (int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
+  public void execute (long timeDifferential, int hostIndex, String hostId, Ouroboros ouroboros, ExchangeTransport exchangeTransport)
     throws Exception {
 
     if (isEnabled() && ouroboros.isEnabled()) {
