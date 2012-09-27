@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- * 
+ *
  * This file is part of the CodeAsylum Code Project.
- * 
+ *
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- * 
+ *
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- * 
+ *
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -47,7 +47,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.parsers.ParserConfigurationException;
@@ -58,6 +57,10 @@ import org.smallmind.liquibase.spring.SpringLiquibase;
 import org.smallmind.nutsnbolts.io.StenographWriter;
 import org.smallmind.nutsnbolts.lang.FormattedRuntimeException;
 import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
+import org.smallmind.nutsnbolts.layout.Alignment;
+import org.smallmind.nutsnbolts.layout.Bias;
+import org.smallmind.nutsnbolts.layout.Gap;
+import org.smallmind.nutsnbolts.layout.ParaboxConstraint;
 import org.smallmind.nutsnbolts.util.EnumerationIterator;
 import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.sql.DriverManagerDataSource;
@@ -69,6 +72,8 @@ import org.smallmind.swing.dialog.WarningDialog;
 import org.smallmind.swing.file.DirectoryChooserDialog;
 import org.smallmind.swing.file.FileChooserDialog;
 import org.smallmind.swing.file.FileChooserState;
+import org.smallmind.swing.layout.ParaboxLayoutManager;
+import org.smallmind.swing.layout.ParaboxPanel;
 import org.smallmind.swing.menu.MenuDelegateFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.xml.sax.SAXException;
@@ -98,7 +103,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
 
     super("Liquidate");
 
-    GroupLayout layout;
+    ParaboxLayoutManager layout;
     GroupLayout.ParallelGroup sourceVerticalGroup;
     GroupLayout.ParallelGroup goalHorizontalGroup;
     GroupLayout.SequentialGroup sourceHorizontalGroup;
@@ -121,7 +126,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     config = new LiquidateConfig();
 
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    setLayout(layout = new GroupLayout(getContentPane()));
+    setLayout(layout = new ParaboxLayoutManager(Bias.VERTICAL, Gap.UNRELATED, Alignment.FIRST, Alignment.FIRST));
 
     databaseLabel = new JLabel("Database:");
     databaseCombo = new JComboBox(Database.values());
@@ -192,6 +197,10 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     startButton = new JButton("Start");
     startButton.addActionListener(this);
 
+    add(new ParaboxPanel(Bias.HORIZONTAL, Gap.RELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(databaseLabel).addComponent(databaseCombo, new ParaboxConstraint().mayGrowX()), new ParaboxConstraint().mayGrowX());
+    add(new ParaboxPanel(Bias.HORIZONTAL, Gap.UNRELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(hostLabel).addComponent(new ParaboxPanel(Bias.HORIZONTAL, Gap.RELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(hostTextField, new ParaboxConstraint().mayGrowX()).addComponent(colonLabel).addComponent(portTextField)), new ParaboxConstraint().mayGrowX());
+
+    /*
     layout.setAutoCreateContainerGaps(true);
 
     layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
@@ -240,6 +249,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     goalVerticalGroup
       .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(outputLabel).addComponent(outputTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(browseButton)
       .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addComponent(buttonSeparator).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(startButton);
+*/
 
     setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 150, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 50));
     setResizable(false);
