@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- *
+ * 
  * This file is part of the CodeAsylum Code Project.
- *
+ * 
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- *
+ * 
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
+ * 
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- *
+ * 
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -60,7 +60,7 @@ import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
 import org.smallmind.nutsnbolts.layout.Alignment;
 import org.smallmind.nutsnbolts.layout.Bias;
 import org.smallmind.nutsnbolts.layout.Gap;
-import org.smallmind.nutsnbolts.layout.ParaboxConstraint;
+import org.smallmind.nutsnbolts.layout.Spec;
 import org.smallmind.nutsnbolts.util.EnumerationIterator;
 import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.sql.DriverManagerDataSource;
@@ -197,8 +197,8 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     startButton = new JButton("Start");
     startButton.addActionListener(this);
 
-    add(new ParaboxPanel(Bias.HORIZONTAL, Gap.RELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(databaseLabel).addComponent(databaseCombo, new ParaboxConstraint().mayGrowX()), new ParaboxConstraint().mayGrowX());
-    add(new ParaboxPanel(Bias.HORIZONTAL, Gap.UNRELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(hostLabel).addComponent(new ParaboxPanel(Bias.HORIZONTAL, Gap.RELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(hostTextField, new ParaboxConstraint().mayGrowX()).addComponent(colonLabel).addComponent(portTextField)), new ParaboxConstraint().mayGrowX());
+    add(new ParaboxPanel(Bias.HORIZONTAL, Gap.UNRELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(databaseLabel).addComponent(databaseCombo, Spec.EXPAND_X), Spec.EXPAND_X);
+    add(new ParaboxPanel(Bias.HORIZONTAL, Gap.UNRELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(hostLabel).addComponent(new ParaboxPanel(Bias.HORIZONTAL, Gap.RELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(hostTextField, Spec.EXPAND_X).addComponent(colonLabel).addComponent(portTextField), Spec.EXPAND_X), Spec.EXPAND_X);
 
     /*
     layout.setAutoCreateContainerGaps(true);
