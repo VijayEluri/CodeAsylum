@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- * 
+ *
  * This file is part of the CodeAsylum Code Project.
- * 
+ *
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- * 
+ *
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- * 
+ *
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -58,8 +58,7 @@ import org.smallmind.nutsnbolts.io.StenographWriter;
 import org.smallmind.nutsnbolts.lang.FormattedRuntimeException;
 import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
 import org.smallmind.nutsnbolts.layout.Alignment;
-import org.smallmind.nutsnbolts.layout.Bias;
-import org.smallmind.nutsnbolts.layout.Gap;
+import org.smallmind.nutsnbolts.layout.Justification;
 import org.smallmind.nutsnbolts.layout.Spec;
 import org.smallmind.nutsnbolts.util.EnumerationIterator;
 import org.smallmind.nutsnbolts.util.StringUtilities;
@@ -73,7 +72,6 @@ import org.smallmind.swing.file.DirectoryChooserDialog;
 import org.smallmind.swing.file.FileChooserDialog;
 import org.smallmind.swing.file.FileChooserState;
 import org.smallmind.swing.layout.ParaboxLayoutManager;
-import org.smallmind.swing.layout.ParaboxPanel;
 import org.smallmind.swing.menu.MenuDelegateFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.xml.sax.SAXException;
@@ -126,7 +124,7 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     config = new LiquidateConfig();
 
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    setLayout(layout = new ParaboxLayoutManager(Bias.VERTICAL, Gap.UNRELATED, Alignment.FIRST, Alignment.FIRST));
+    setLayout(layout = new ParaboxLayoutManager());
 
     databaseLabel = new JLabel("Database:");
     databaseCombo = new JComboBox(Database.values());
@@ -197,59 +195,72 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     startButton = new JButton("Start");
     startButton.addActionListener(this);
 
-    add(new ParaboxPanel(Bias.HORIZONTAL, Gap.UNRELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(databaseLabel).addComponent(databaseCombo, Spec.EXPAND_X), Spec.EXPAND_X);
-    add(new ParaboxPanel(Bias.HORIZONTAL, Gap.UNRELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(hostLabel).addComponent(new ParaboxPanel(Bias.HORIZONTAL, Gap.RELATED, Alignment.FIRST, Alignment.BASELINE).addComponent(hostTextField, Spec.EXPAND_X).addComponent(colonLabel).addComponent(portTextField), Spec.EXPAND_X), Spec.EXPAND_X);
+    add(databaseLabel);
+    add(hostLabel);
+    add(databaseCombo);
+    add(hostTextField);
+    add(colonLabel);
+    add(portTextField);
+
+    layout.setHorizontalGroup(layout.parallel()
+      .add(layout.sequential()
+        .add(layout.parallel(Alignment.TRAILING).add(databaseLabel).add(hostLabel))
+        .add(layout.parallel().add(databaseCombo, Spec.EXPAND)
+          .add(layout.sequential().add(hostTextField, Spec.EXPAND).add(colonLabel).add(portTextField), Spec.EXPAND), Spec.EXPAND), Spec.EXPAND));
+
+    layout.setVerticalGroup(layout.sequential().add(layout.parallel(Alignment.BASELINE).add(databaseLabel).add(databaseCombo))
+      .add(layout.parallel(Alignment.BASELINE).add(hostLabel).add(hostTextField).add(colonLabel).add(portTextField)));
 
     /*
-    layout.setAutoCreateContainerGaps(true);
+        layout.setAutoCreateContainerGaps(true);
 
-    layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-      .addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-        .addGroup(layout.createSequentialGroup().addComponent(databaseLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-        .addGroup(layout.createSequentialGroup().addComponent(hostLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-        .addGroup(layout.createSequentialGroup().addComponent(schemaLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-        .addGroup(layout.createSequentialGroup().addComponent(userLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-        .addGroup(layout.createSequentialGroup().addComponent(passwordLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-        .addGroup(layout.createSequentialGroup().addComponent(sourceLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-        .addGroup(layout.createSequentialGroup().addComponent(goalLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-        .addGroup(layout.createSequentialGroup().addComponent(outputLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)))
-        .addGroup(goalHorizontalGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(databaseCombo)
-          .addGroup(layout.createSequentialGroup().addComponent(hostTextField).addGap(3).addComponent(colonLabel).addGap(3).addComponent(portTextField))
-          .addComponent(schemaTextField).addComponent(userTextField).addComponent(passwordField)
-          .addGroup(sourceHorizontalGroup = layout.createSequentialGroup()).addComponent(changeLogTextField)
-          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(outputTextField).addComponent(browseButton))))
-      .addComponent(buttonSeparator).addComponent(startButton));
+        layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+          .addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+            .addGroup(layout.createSequentialGroup().addComponent(databaseLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+            .addGroup(layout.createSequentialGroup().addComponent(hostLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+            .addGroup(layout.createSequentialGroup().addComponent(schemaLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+            .addGroup(layout.createSequentialGroup().addComponent(userLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+            .addGroup(layout.createSequentialGroup().addComponent(passwordLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+            .addGroup(layout.createSequentialGroup().addComponent(sourceLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+            .addGroup(layout.createSequentialGroup().addComponent(goalLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+            .addGroup(layout.createSequentialGroup().addComponent(outputLabel).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)))
+            .addGroup(goalHorizontalGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(databaseCombo)
+              .addGroup(layout.createSequentialGroup().addComponent(hostTextField).addGap(3).addComponent(colonLabel).addGap(3).addComponent(portTextField))
+              .addComponent(schemaTextField).addComponent(userTextField).addComponent(passwordField)
+              .addGroup(sourceHorizontalGroup = layout.createSequentialGroup()).addComponent(changeLogTextField)
+              .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(outputTextField).addComponent(browseButton))))
+          .addComponent(buttonSeparator).addComponent(startButton));
 
-    for (JRadioButton sourceButton : sourceButtons) {
-      sourceHorizontalGroup.addComponent(sourceButton);
-    }
+        for (JRadioButton sourceButton : sourceButtons) {
+          sourceHorizontalGroup.addComponent(sourceButton);
+        }
 
-    for (JRadioButton goalButton : goalButtons) {
-      goalHorizontalGroup.addComponent(goalButton);
-    }
+        for (JRadioButton goalButton : goalButtons) {
+          goalHorizontalGroup.addComponent(goalButton);
+        }
 
-    layout.setVerticalGroup(goalVerticalGroup = layout.createSequentialGroup()
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(databaseLabel).addComponent(databaseCombo)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(hostLabel).addComponent(hostTextField).addComponent(colonLabel).addComponent(portTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(schemaLabel).addComponent(schemaTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(userLabel).addComponent(userTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(passwordLabel).addComponent(passwordField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(sourceLabel).addGroup(sourceVerticalGroup = layout.createParallelGroup())).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-      .addComponent(changeLogTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(goalLabel).addComponent(goalButtons[0])));
+        layout.setVerticalGroup(goalVerticalGroup = layout.createSequentialGroup()
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(databaseLabel).addComponent(databaseCombo)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(hostLabel).addComponent(hostTextField).addComponent(colonLabel).addComponent(portTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(schemaLabel).addComponent(schemaTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(userLabel).addComponent(userTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(passwordLabel).addComponent(passwordField)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(sourceLabel).addGroup(sourceVerticalGroup = layout.createParallelGroup())).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+          .addComponent(changeLogTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(goalLabel).addComponent(goalButtons[0])));
 
-    for (JRadioButton sourceButton : sourceButtons) {
-      sourceVerticalGroup.addComponent(sourceButton);
-    }
+        for (JRadioButton sourceButton : sourceButtons) {
+          sourceVerticalGroup.addComponent(sourceButton);
+        }
 
-    for (int count = 1; count < goalButtons.length; count++) {
-      goalVerticalGroup.addComponent(goalButtons[count]);
-    }
+        for (int count = 1; count < goalButtons.length; count++) {
+          goalVerticalGroup.addComponent(goalButtons[count]);
+        }
 
-    goalVerticalGroup
-      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(outputLabel).addComponent(outputTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(browseButton)
-      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addComponent(buttonSeparator).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(startButton);
-*/
+        goalVerticalGroup
+          .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(outputLabel).addComponent(outputTextField)).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(browseButton)
+          .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addComponent(buttonSeparator).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(startButton);
+    */
 
     setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 150, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 50));
     setResizable(false);
