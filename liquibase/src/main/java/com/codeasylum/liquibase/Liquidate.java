@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
- * 
+ *
  * This file is part of the CodeAsylum Code Project.
- * 
+ *
  * The CodeAsylum Code Project is free software, you can redistribute
  * it and/or modify it under the terms of GNU Affero General Public
  * License as published by the Free Software Foundation, either version 3
  * of the License, or (at your option) any later version.
- * 
+ *
  * The CodeAsylum Code Project is distributed in the hope that it will
  * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the the GNU Affero General Public
  * License, along with The CodeAsylum Code Project. If not, see
  * <http://www.gnu.org/licenses/>.
- * 
+ *
  * Additional permission under the GNU Affero GPL version 3 section 7
  * ------------------------------------------------------------------
  * If you modify this Program, or any covered work, by linking or
@@ -60,8 +60,8 @@ import org.smallmind.nutsnbolts.layout.Alignment;
 import org.smallmind.nutsnbolts.layout.Constraint;
 import org.smallmind.nutsnbolts.layout.Gap;
 import org.smallmind.nutsnbolts.layout.Justification;
-import org.smallmind.nutsnbolts.layout.ParallelGroup;
-import org.smallmind.nutsnbolts.layout.SequentialGroup;
+import org.smallmind.nutsnbolts.layout.ParallelBox;
+import org.smallmind.nutsnbolts.layout.SequentialBox;
 import org.smallmind.nutsnbolts.util.EnumerationIterator;
 import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.sql.DriverManagerDataSource;
@@ -104,10 +104,10 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     super("Liquidate");
 
     ParaboxLayoutManager layout;
-    ParallelGroup goalHorizontalGroup;
-    SequentialGroup sourceHorizontalGroup;
-    ParallelGroup sourceVerticalGroup;
-    SequentialGroup goalVerticalGroup;
+    ParallelBox goalHorizontalBox;
+    SequentialBox sourceHorizontalBox;
+    ParallelBox sourceVerticalBox;
+    SequentialBox goalVerticalBox;
     JSeparator buttonSeparator;
     JRadioButton[] sourceButtons;
     JRadioButton[] goalButtons;
@@ -197,48 +197,48 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     startButton = new JButton("Start");
     startButton.addActionListener(this);
 
-    layout.setHorizontalGroup(layout.parallelGroup()
-      .add(layout.sequentialGroup().add(layout.parallelGroup(Alignment.TRAILING)
+    layout.setHorizontalBox(layout.parallelBox()
+      .add(layout.sequentialBox().add(layout.parallelBox(Alignment.TRAILING)
         .add(databaseLabel).add(hostLabel).add(schemaLabel).add(userLabel).add(passwordLabel).add(sourceLabel).add(goalLabel).add(outputLabel))
-        .add(goalHorizontalGroup = layout.parallelGroup().add(databaseCombo, Constraint.expand())
-          .add(layout.sequentialGroup(3).add(hostTextField, Constraint.expand()).add(colonLabel).add(portTextField))
+        .add(goalHorizontalBox = layout.parallelBox().add(databaseCombo, Constraint.expand())
+          .add(layout.sequentialBox(3).add(hostTextField, Constraint.expand()).add(colonLabel).add(portTextField))
           .add(schemaTextField, Constraint.expand()).add(userTextField, Constraint.expand()).add(passwordField, Constraint.expand())
-          .add(sourceHorizontalGroup = layout.sequentialGroup()).add(changeLogTextField, Constraint.expand())
-          .add(layout.parallelGroup(Alignment.TRAILING).add(outputTextField, Constraint.expand()).add(browseButton))))
-      .add(buttonSeparator, Constraint.expand()).add(layout.sequentialGroup(Justification.LAST).add(startButton)));
+          .add(sourceHorizontalBox = layout.sequentialBox()).add(changeLogTextField, Constraint.expand())
+          .add(layout.parallelBox(Alignment.TRAILING).add(outputTextField, Constraint.expand()).add(browseButton))))
+      .add(buttonSeparator, Constraint.expand()).add(layout.sequentialBox(Justification.LAST, true).add(startButton)));
 
     for (JRadioButton sourceButton : sourceButtons) {
-      sourceHorizontalGroup.add(sourceButton);
+      sourceHorizontalBox.add(sourceButton);
     }
 
     for (JRadioButton goalButton : goalButtons) {
-      goalHorizontalGroup.add(goalButton);
+      goalHorizontalBox.add(goalButton);
     }
 
-    layout.setVerticalGroup(layout.sequentialGroup()
-      .add(layout.sequentialGroup()
-        .add(layout.parallelGroup(Alignment.BASELINE).add(databaseLabel).add(databaseCombo))
-        .add(layout.parallelGroup(Alignment.BASELINE).add(hostLabel).add(hostTextField).add(colonLabel).add(portTextField))
-        .add(layout.parallelGroup(Alignment.BASELINE).add(schemaLabel).add(schemaTextField))
-        .add(layout.parallelGroup(Alignment.BASELINE).add(userLabel).add(userTextField))
-        .add(layout.parallelGroup(Alignment.BASELINE).add(passwordLabel).add(passwordField)))
-      .add(layout.sequentialGroup(3)
-        .add(layout.parallelGroup(Alignment.CENTER).add(sourceLabel).add(sourceVerticalGroup = layout.parallelGroup()))
+    layout.setVerticalBox(layout.sequentialBox()
+      .add(layout.sequentialBox()
+        .add(layout.parallelBox(Alignment.BASELINE).add(databaseLabel).add(databaseCombo))
+        .add(layout.parallelBox(Alignment.BASELINE).add(hostLabel).add(hostTextField).add(colonLabel).add(portTextField))
+        .add(layout.parallelBox(Alignment.BASELINE).add(schemaLabel).add(schemaTextField))
+        .add(layout.parallelBox(Alignment.BASELINE).add(userLabel).add(userTextField))
+        .add(layout.parallelBox(Alignment.BASELINE).add(passwordLabel).add(passwordField)))
+      .add(layout.sequentialBox(3)
+        .add(layout.parallelBox(Alignment.CENTER).add(sourceLabel).add(sourceVerticalBox = layout.parallelBox()))
         .add(changeLogTextField))
-      .add(goalVerticalGroup = layout.sequentialGroup(Gap.NONE)
-        .add(layout.parallelGroup(Alignment.BASELINE).add(goalLabel).add(goalButtons[0]))));
+      .add(goalVerticalBox = layout.sequentialBox(Gap.NONE)
+        .add(layout.parallelBox(Alignment.BASELINE).add(goalLabel).add(goalButtons[0]))));
 
     for (JRadioButton sourceButton : sourceButtons) {
-      sourceVerticalGroup.add(sourceButton);
+      sourceVerticalBox.add(sourceButton);
     }
 
     for (int count = 1; count < goalButtons.length; count++) {
-      goalVerticalGroup.add(goalButtons[count]);
+      goalVerticalBox.add(goalButtons[count]);
     }
 
-    layout.getVerticalGroup()
-      .add(layout.sequentialGroup(Gap.RELATED).add(layout.parallelGroup(Alignment.BASELINE).add(outputLabel).add(outputTextField)).add(browseButton))
-      .add(layout.sequentialGroup(Gap.RELATED).add(buttonSeparator).add(startButton));
+    layout.getVerticalBox()
+      .add(layout.sequentialBox(Gap.RELATED).add(layout.parallelBox(Alignment.BASELINE).add(outputLabel).add(outputTextField)).add(browseButton))
+      .add(layout.sequentialBox(Gap.RELATED).add(buttonSeparator).add(startButton));
 
     setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 150, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 50));
     setResizable(false);
