@@ -222,10 +222,10 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
         .add(layout.parallelGroup(Alignment.BASELINE).add(schemaLabel).add(schemaTextField))
         .add(layout.parallelGroup(Alignment.BASELINE).add(userLabel).add(userTextField))
         .add(layout.parallelGroup(Alignment.BASELINE).add(passwordLabel).add(passwordField)))
-      .add(layout.sequentialGroup(Gap.RELATED)
+      .add(layout.sequentialGroup(3)
         .add(layout.parallelGroup(Alignment.CENTER).add(sourceLabel).add(sourceVerticalGroup = layout.parallelGroup()))
         .add(changeLogTextField))
-      .add(goalVerticalGroup = layout.sequentialGroup(0)
+      .add(goalVerticalGroup = layout.sequentialGroup(Gap.NONE)
         .add(layout.parallelGroup(Alignment.BASELINE).add(goalLabel).add(goalButtons[0]))));
 
     for (JRadioButton sourceButton : sourceButtons) {
