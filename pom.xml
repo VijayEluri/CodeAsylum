@@ -84,9 +84,9 @@
   </properties>
 
   <modules>
-    <module>review</module>
-    <module>stress</module>
     <module>liquibase</module>
+    <module>stress</module>
+    <module>deploy</module>
   </modules>
 
   <dependencyManagement>
