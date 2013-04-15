@@ -87,6 +87,7 @@
     <module>liquibase</module>
     <module>stress</module>
     <module>deploy</module>
+    <module>bank</module>
   </modules>
 
   <dependencyManagement>
