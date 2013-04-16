@@ -12,6 +12,11 @@
   <description>Core NoSql Store</description>
 
   <dependencies>
+    <dependency>
+      <groupId>org.smallmind</groupId>
+      <artifactId>smallmind-nutsnbolts</artifactId>
+      <version>${smallmind.version}</version>
+    </dependency>
   </dependencies>
 
 </project>
