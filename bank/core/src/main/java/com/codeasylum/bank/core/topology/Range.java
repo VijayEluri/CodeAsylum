@@ -1,22 +1,17 @@
 package com.codeasylum.bank.core.topology;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class Range {
 
-  private static final Comparator<Segment> GENERATION_COMPARATOR = new Comparator<Segment>() {
-
-    @Override
-    public int compare (Segment segment1, Segment segment2) {
-
-      return segment1.getGeneration() - segment2.getGeneration();
-    }
-  };
   private final Segment[] segments;
+  private transient TreeMap<Integer, TreeSet<Segment>> generationalMap;
 
   public Range (int size) {
 
@@ -31,43 +26,87 @@ public class Range {
     for (int index = 0; index < size; index++) {
       segments[index] = new Segment(start, (index == size - 1) ? Long.MAX_VALUE : (start += breadth));
     }
+
+    reconstructGenerationalMap();
   }
 
   public Range (Segment[] segments) {
 
     this.segments = segments;
+
+    reconstructGenerationalMap();
   }
 
-  public Segment[] getSegments () {
+  private void reconstructGenerationalMap () {
+
+    generationalMap = new TreeMap<>();
+
+    for (Segment segment : segments) {
+
+      TreeSet<Segment> segmentSet;
+
+      if ((segmentSet = generationalMap.get(segment.getStage())) == null) {
+        generationalMap.put(segment.getStage(), segmentSet = new TreeSet<>(OrdinalSegmentComparator.instance()));
+      }
+      segmentSet.add(segment);
+    }
+  }
+
+  public synchronized Segment[] getSegments () {
 
     return segments;
   }
 
-  public Segment[] split (int stolenSegmentCount) {
+  public synchronized Segment splitOldestSegment () {
 
-    Segment[] stolenSegments = new Segment[stolenSegmentCount];
-    LinkedList<Segment> segmentList = new LinkedList<>(Arrays.asList(segments));
+    Segment oldestSegment = generationalMap.firstEntry().getValue().pollFirst();
+    Segment[] splitSegments = oldestSegment.split();
 
-    Collections.sort(segmentList, GENERATION_COMPARATOR);
-    for (int count = 0; count < stolenSegmentCount; count++) {
-
-      Segment[] splitSegments;
-      Segment youngSegment = segmentList.removeFirst();
-      int index = 0;
-
-      for (Segment currentSegment : segments) {
-        if (currentSegment == youngSegment) {
-          break;
-        }
-
-        index++;
-      }
-
-      splitSegments = youngSegment.split();
-      segments[index] = splitSegments[0];
-      stolenSegments[count] = splitSegments[1];
+    if (generationalMap.firstEntry().getValue().isEmpty()) {
+      generationalMap.pollFirstEntry();
     }
 
-    return stolenSegments;
+    for (int index = 0; index < segments.length; index++) {
+      if (segments[index] == oldestSegment) {
+
+        TreeSet<Segment> segmentSet;
+
+        segments[index] = splitSegments[0];
+
+        if ((segmentSet = generationalMap.get(segments[index].getStage())) == null) {
+          generationalMap.put(segments[index].getStage(), segmentSet = new TreeSet<>(OrdinalSegmentComparator.instance()));
+        }
+        segmentSet.add(segments[index]);
+
+        return splitSegments[1];
+      }
+    }
+
+    throw new IllegalStateException("Generational map is out of sync with the current segments");
+  }
+
+  public synchronized Generation getOldestGeneration () {
+
+    if (generationalMap.isEmpty()) {
+
+      return null;
+    }
+
+    Map.Entry<Integer, TreeSet<Segment>> oldestEntry = generationalMap.firstEntry();
+
+    return new Generation(oldestEntry.getKey(), oldestEntry.getValue());
+  }
+
+  private void writeObject (ObjectOutputStream objectOutputStream)
+    throws IOException {
+
+    objectOutputStream.defaultWriteObject();
+  }
+
+  private void readObject (ObjectInputStream objectInputStream)
+    throws IOException, ClassNotFoundException {
+
+    objectInputStream.defaultReadObject();
+    reconstructGenerationalMap();
   }
 }

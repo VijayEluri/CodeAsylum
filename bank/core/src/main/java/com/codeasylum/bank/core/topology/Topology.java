@@ -1,7 +1,7 @@
 package com.codeasylum.bank.core.topology;
 
-import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 public class Topology {
 
@@ -38,11 +38,18 @@ public class Topology {
 
       Segment[] stolenSegments;
       LinkedList<Segment> stolenSegmentList = new LinkedList<>();
-      int stolenSegmentCount = numberOfSegments / nodeList.size();
-      int oddSegmentCount = numberOfSegments % nodeList.size();
+      TreeSet<Node> nodeSet = new TreeSet<>(GenerationalNodeComparator.instance());
 
       for (Node node : nodeList) {
-        stolenSegmentList.addAll(Arrays.asList(node.split(stolenSegmentCount + ((oddSegmentCount-- > 0) ? 1 : 0))));
+        nodeSet.add(node);
+      }
+
+      while (stolenSegmentList.size() < numberOfSegments) {
+
+        Node victimNode = nodeSet.pollFirst();
+
+        stolenSegmentList.add(victimNode.getRange().splitOldestSegment());
+        nodeSet.add(victimNode);
       }
 
       stolenSegments = new Segment[stolenSegmentList.size()];

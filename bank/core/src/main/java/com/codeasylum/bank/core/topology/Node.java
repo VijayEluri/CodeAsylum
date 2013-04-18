@@ -23,9 +23,4 @@ public class Node {
 
     return range;
   }
-
-  public Segment[] split (int stolenSegmentCount) {
-
-    return range.split(stolenSegmentCount);
-  }
 }
