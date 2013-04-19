@@ -1,5 +1,8 @@
 package com.codeasylum.bank.core.topology;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -38,6 +41,38 @@ public class Circle {
     for (long token : tokenList) {
       circumference.put(token, node);
     }
+  }
+
+  public synchronized void foo () {
+
+    HashMap<Node, BigInteger> spaceMap = new HashMap<>();
+    Map.Entry<Long, Node> currentEntry = circumference.lastEntry();
+    BigInteger sum = BigInteger.ZERO;
+    long mark = Long.MAX_VALUE;
+
+    while (currentEntry != null) {
+
+      BigInteger total;
+
+      if ((total = spaceMap.get(currentEntry.getValue())) == null) {
+        total = BigInteger.ZERO;
+      }
+
+      spaceMap.put(currentEntry.getValue(), total.add(BigInteger.valueOf(mark).subtract(BigInteger.valueOf(currentEntry.getKey()))));
+      currentEntry = circumference.lowerEntry(mark = currentEntry.getKey());
+    }
+
+    if (!circumference.isEmpty()) {
+      spaceMap.put(circumference.lastEntry().getValue(), spaceMap.get(circumference.lastEntry().getValue()).add(BigInteger.ONE).add(BigInteger.valueOf(mark).subtract(BigInteger.valueOf(Long.MIN_VALUE))));
+    }
+
+    for (Map.Entry<Node, BigInteger> spaceEntry : spaceMap.entrySet()) {
+      sum = sum.add(spaceEntry.getValue());
+    }
+    for (Map.Entry<Node, BigInteger> spaceEntry : spaceMap.entrySet()) {
+      System.out.println(spaceEntry.getKey().getIdentity() + ":" + spaceEntry.getValue() + ":" + new BigDecimal(spaceEntry.getValue()).divide(new BigDecimal(sum)));
+    }
+    System.out.println("Total=" + sum);
   }
 
   public synchronized void remove (String identity)

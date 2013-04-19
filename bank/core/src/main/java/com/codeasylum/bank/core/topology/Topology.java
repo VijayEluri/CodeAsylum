@@ -24,9 +24,8 @@ public class Topology {
     return inception;
   }
 
-  public void join (Node node)
-    throws TopologyCollisionException {
+  public Circle getCircle () {
 
-    circle.join(node);
+    return circle;
   }
 }
