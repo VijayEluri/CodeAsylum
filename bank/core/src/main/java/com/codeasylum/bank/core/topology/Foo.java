@@ -1,31 +1,16 @@
 package com.codeasylum.bank.core.topology;
 
-import java.math.BigInteger;
-
 public class Foo {
 
-  public static void main (String... args) {
+  public static void main (String... args)
+    throws Exception {
 
-    Topology topology = new Topology(new SHA3Partitioner(), 256);
+    Topology topology = new Topology("test", new SHA3Partitioner(), 2);
 
-    for (int loop = 0; loop < 40; loop++) {
+    for (int loop = 0; loop < 20; loop++) {
 
       System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-      topology.join();
-      int index = 0;
-
-      for (Node node : topology.getNodes()) {
-
-        BigInteger t = BigInteger.ZERO;
-
-        System.out.println(index++ + ":" + node.getRange().getSegments().length + "----------------------------------------------");
-
-        for (Segment segment : node.getRange().getSegments()) {
-          t = t.add(BigInteger.valueOf(segment.getEnd() - segment.getStart()));
-        }
-
-        System.out.println("Total:" + t);
-      }
+      topology.join(new Node());
     }
   }
 }

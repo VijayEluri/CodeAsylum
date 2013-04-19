@@ -12,8 +12,13 @@ public class SHA3Partitioner implements Partitioner {
   }
 
   @Override
-  public long getToken (Key key) {
+  public synchronized long getToken (Key key) {
 
-    return Bytes.getLong(sha3.digest(key.getBytes()));
+    try {
+      return Bytes.getLong(sha3.digest(key.getBytes()));
+    }
+    finally {
+      sha3.reset();
+    }
   }
 }

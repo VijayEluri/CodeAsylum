@@ -1,61 +1,32 @@
 package com.codeasylum.bank.core.topology;
 
-import java.util.LinkedList;
-import java.util.TreeSet;
-
 public class Topology {
 
-  private final int numberOfSegments;
-  private final LinkedList<Node> nodeList;
-  private final Partitioner partitioner;
   private final long inception;
+  private Circle circle;
+  private String name;
 
-  public Topology (Partitioner partitioner, int numberOfSegments) {
+  public Topology (String name, Partitioner partitioner, int segmentation) {
 
-    this.partitioner = partitioner;
-    this.numberOfSegments = numberOfSegments;
-
-    nodeList = new LinkedList<>();
+    this.name = name;
 
     inception = System.currentTimeMillis();
+    circle = new Circle(partitioner, segmentation);
   }
 
-  public synchronized Node[] getNodes () {
+  public String getName () {
 
-    Node[] nodes = new Node[nodeList.size()];
-
-    nodeList.toArray(nodes);
-
-    return nodes;
+    return name;
   }
 
-  public synchronized void join () {
+  public long getInception () {
 
-    if (nodeList.size() == 0) {
-      nodeList.add(new Node(new Range(numberOfSegments)));
-    }
-    else {
+    return inception;
+  }
 
-      Segment[] stolenSegments;
-      LinkedList<Segment> stolenSegmentList = new LinkedList<>();
-      TreeSet<Node> nodeSet = new TreeSet<>(GenerationalNodeComparator.instance());
+  public void join (Node node)
+    throws TopologyCollisionException {
 
-      for (Node node : nodeList) {
-        nodeSet.add(node);
-      }
-
-      while (stolenSegmentList.size() < numberOfSegments) {
-
-        Node victimNode = nodeSet.pollFirst();
-
-        stolenSegmentList.add(victimNode.getRange().splitOldestSegment());
-        nodeSet.add(victimNode);
-      }
-
-      stolenSegments = new Segment[stolenSegmentList.size()];
-      stolenSegmentList.toArray(stolenSegments);
-
-      nodeList.add(new Node(new Range(stolenSegments)));
-    }
+    circle.join(node);
   }
 }
