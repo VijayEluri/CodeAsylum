@@ -1,18 +1,25 @@
 package com.codeasylum.bank.core.topology;
 
-import java.util.UUID;
+import java.io.Serializable;
 
-public class Node {
+public class Node implements Serializable {
 
   private final String identity;
+  private final long[] tokens;
 
-  public Node () {
+  public Node (String identity, long[] tokens) {
 
-    identity = UUID.randomUUID().toString();
+    this.identity = identity;
+    this.tokens = tokens;
   }
 
   public String getIdentity () {
 
     return identity;
+  }
+
+  public long[] getTokens () {
+
+    return tokens;
   }
 }

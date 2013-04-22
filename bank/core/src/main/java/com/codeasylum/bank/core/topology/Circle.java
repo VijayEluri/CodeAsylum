@@ -1,5 +1,9 @@
 package com.codeasylum.bank.core.topology;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -7,40 +11,69 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
-public class Circle {
+public class Circle implements Serializable {
 
   private final LinkedList<Node> nodes = new LinkedList<>();
-  private final TreeMap<Long, Node> circumference = new TreeMap<>();
   private final Partitioner partitioner;
   private final int segmentation;
+  private transient TreeMap<Long, Node> circumference;
 
   public Circle (Partitioner partitioner, int segmentation) {
 
     this.partitioner = partitioner;
     this.segmentation = segmentation;
+
+    loadCircumference();
   }
 
-  public synchronized void join (Node node)
-    throws TopologyCollisionException {
+  private void loadCircumference () {
 
-    LinkedList<Long> tokenList = new LinkedList<>();
+    circumference = new TreeMap<>();
+    for (Node node : nodes) {
+      for (long token : node.getTokens()) {
+        circumference.put(token, node);
+      }
+    }
+  }
 
-    for (int segment = 0; segment < segmentation; segment++) {
+  public synchronized Node join () {
 
-      long token;
+    do {
 
-      if (circumference.containsKey(token = partitioner.getToken(new NodeKey(node, segment)))) {
-        throw new TopologyCollisionException("Node(%s) causes a hash collision on attempting a join operation", node.getIdentity());
+      String identity = UUID.randomUUID().toString();
+      boolean collision = false;
+
+      for (Node node : nodes) {
+        if (identity.equals(node.getIdentity())) {
+          collision = true;
+          break;
+        }
       }
 
-      tokenList.add(token);
-    }
+      if (!collision) {
 
-    nodes.add(node);
-    for (long token : tokenList) {
-      circumference.put(token, node);
-    }
+        Node node;
+        long[] tokens = new long[segmentation];
+
+        for (int segment = 0; segment < segmentation; segment++) {
+          if (circumference.containsKey(tokens[segment] = partitioner.getToken(new IdentityKey(identity, segment)))) {
+            collision = true;
+            break;
+          }
+        }
+
+        if (!collision) {
+          nodes.add(node = new Node(identity, tokens));
+          for (long token : tokens) {
+            circumference.put(token, node);
+          }
+
+          return node;
+        }
+      }
+    } while (true);
   }
 
   public synchronized void foo () {
@@ -75,40 +108,35 @@ public class Circle {
     System.out.println("Total=" + sum);
   }
 
-  public synchronized void remove (String identity)
+  public synchronized boolean remove (String identity)
     throws TopologyException {
 
-    Iterator<Node> nodeIter;
-    Iterator<Map.Entry<Long, Node>> entryIter;
-    boolean matched = false;
+    Iterator<Node> nodeIter = nodes.iterator();
 
-    nodeIter = nodes.iterator();
     while (nodeIter.hasNext()) {
       if (nodeIter.next().getIdentity().equals(identity)) {
-        matched = true;
+
+        Iterator<Map.Entry<Long, Node>> entryIter = circumference.entrySet().iterator();
+
         nodeIter.remove();
-        break;
+        while (entryIter.hasNext()) {
+          if (entryIter.next().getValue().getIdentity().equals(identity)) {
+            entryIter.remove();
+          }
+        }
+
+        return true;
       }
     }
 
-    if (!matched) {
-      throw new TopologyException("Unable top locate Node(%s)", identity);
-    }
-
-    entryIter = circumference.entrySet().iterator();
-    while (entryIter.hasNext()) {
-      if (entryIter.next().getValue().getIdentity().equals(identity)) {
-        entryIter.remove();
-      }
-    }
+    return false;
   }
 
   public synchronized Node get (Key key) {
 
     Map.Entry<Long, Node> tokenEntry;
-    long token = partitioner.getToken(key);
 
-    if ((tokenEntry = circumference.floorEntry(token)) == null) {
+    if ((tokenEntry = circumference.floorEntry(partitioner.getToken(key))) == null) {
       if ((tokenEntry = circumference.lastEntry()) == null) {
 
         return null;
@@ -118,21 +146,34 @@ public class Circle {
     return tokenEntry.getValue();
   }
 
-  public class NodeKey implements Key {
+  private void writeObject (ObjectOutputStream out)
+    throws IOException {
 
-    private Node node;
+    out.defaultWriteObject();
+  }
+
+  private void readObject (ObjectInputStream in)
+    throws IOException, ClassNotFoundException {
+
+    in.defaultReadObject();
+    loadCircumference();
+  }
+
+  private class IdentityKey implements Key {
+
+    private String identity;
     private int segment;
 
-    public NodeKey (Node node, int segment) {
+    public IdentityKey (String identity, int segment) {
 
-      this.node = node;
+      this.identity = identity;
       this.segment = segment;
     }
 
     @Override
     public byte[] getBytes () {
 
-      return (node.getIdentity() + segment).getBytes();
+      return (identity + segment).getBytes();
     }
   }
 }

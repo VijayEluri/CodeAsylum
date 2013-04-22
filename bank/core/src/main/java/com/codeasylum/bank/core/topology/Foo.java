@@ -15,7 +15,7 @@ public class Foo {
       Node node;
 
       System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-      topology.getCircle().join(node = new Node());
+      node = topology.getCircle().join();
       nodeList.add(node);
       topology.getCircle().foo();
     }

@@ -1,10 +1,12 @@
 package com.codeasylum.bank.core.topology;
 
-public class Topology {
+import com.codeasylum.bank.core.paxos.Model;
 
+public class Topology extends Model {
+
+  private final Circle circle;
+  private final String name;
   private final long inception;
-  private Circle circle;
-  private String name;
 
   public Topology (String name, Partitioner partitioner, int segmentation) {
 
