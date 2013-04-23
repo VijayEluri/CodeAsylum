@@ -24,11 +24,24 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.bank.core.topology;
+package com.codeasylum.bank.core.paxos;
 
-import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public interface Partitioner extends Serializable {
+public class PaxosImpl extends UnicastRemoteObject implements Paxos {
 
-  long getToken (Key key);
+  private static final AtomicInteger registryPort = new AtomicInteger(0);
+
+  public PaxosImpl (int servicePort)
+    throws RemoteException {
+
+    super(0, new PaxosRMIClientSocketFactory(), new PaxosRMIServerSocketFactory(servicePort));
+  }
+
+  public void setRegistryPort (int port) {
+
+    registryPort.set(port);
+  }
 }

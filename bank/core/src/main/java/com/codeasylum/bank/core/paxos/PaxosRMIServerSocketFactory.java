@@ -24,11 +24,30 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.bank.core.topology;
+package com.codeasylum.bank.core.paxos;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.ServerSocket;
+import java.rmi.server.RMIServerSocketFactory;
+import java.rmi.server.RMISocketFactory;
+import org.smallmind.scribe.pen.LoggerManager;
 
-public interface Partitioner extends Serializable {
+public class PaxosRMIServerSocketFactory implements Serializable, RMIServerSocketFactory {
 
-  long getToken (Key key);
+  private int preferredPort;
+
+  public PaxosRMIServerSocketFactory (int preferredPort) {
+
+    this.preferredPort = preferredPort;
+  }
+
+  @Override
+  public ServerSocket createServerSocket (int port)
+    throws IOException {
+
+    LoggerManager.getLogger(PaxosRMIServerSocketFactory.class).info("Creating RMI server socket(%d)...", (port == 0) ? preferredPort : port);
+
+    return RMISocketFactory.getDefaultSocketFactory().createServerSocket((port == 0) ? preferredPort : port);
+  }
 }

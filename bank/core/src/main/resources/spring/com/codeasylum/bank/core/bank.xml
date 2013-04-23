@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+  <bean class="org.smallmind.nutsnbolts.spring.PropertyPlaceholderConfigurer">
+    <property name="order" value="2"/>
+    <property name="ignoreResourceNotFound" value="true"/>
+    <property name="ignoreUnresolvableProperties" value="false"/>
+    <property name="systemPropertyMode" value="OVERRIDE"/>
+    <property name="searchSystemEnvironment" value="true"/>
+    <property name="debugKeys">
+      <list>
+        <value>*</value>
+      </list>
+    </property>
+    <property name="locations">
+      <list>
+        <value>classpath:com/codeasylum/bank/core/default.properties</value>
+        <value>file:/etc/bank/conf/bank.properties</value>
+      </list>
+    </property>
+  </bean>
+
+</beans>

@@ -24,11 +24,10 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.bank.core.topology;
+package com.codeasylum.bank.core.paxos;
 
-import java.io.Serializable;
+import java.rmi.Remote;
 
-public interface Partitioner extends Serializable {
+public interface Paxos extends Remote {
 
-  long getToken (Key key);
 }

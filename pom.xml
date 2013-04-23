@@ -124,6 +124,21 @@
       </dependency>
       <dependency>
         <groupId>org.smallmind</groupId>
+        <artifactId>scribe-spring</artifactId>
+        <version>${smallmind.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.smallmind</groupId>
+        <artifactId>scribe-slf4j</artifactId>
+        <version>${smallmind.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.smallmind</groupId>
+        <artifactId>scribe-apache</artifactId>
+        <version>${smallmind.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.smallmind</groupId>
         <artifactId>smallmind-persistence</artifactId>
         <version>${smallmind.version}</version>
       </dependency>

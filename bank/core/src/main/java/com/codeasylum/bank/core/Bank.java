@@ -24,11 +24,14 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.bank.core.topology;
+package com.codeasylum.bank.core;
 
-import java.io.Serializable;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public interface Partitioner extends Serializable {
+public class Bank {
 
-  long getToken (Key key);
+  public static void main (String... args) {
+
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("com/codeasylum/bank/core/bank.xml", "com/codeasylum/bank/core/logging.xml", "com/codeasylum/bank/core/paxos.xml");
+  }
 }
