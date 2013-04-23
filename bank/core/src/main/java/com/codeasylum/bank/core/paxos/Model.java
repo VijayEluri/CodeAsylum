@@ -4,10 +4,10 @@ import java.io.Serializable;
 
 public abstract class Model implements Serializable {
 
-  private Entry entry;
+  private SequenceNumber sequenceNumber;
 
-  public Entry getEntry () {
+  public SequenceNumber getSequenceNumber () {
 
-    return entry;
+    return sequenceNumber;
   }
 }
