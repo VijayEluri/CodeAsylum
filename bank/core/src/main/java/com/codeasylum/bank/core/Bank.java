@@ -26,9 +26,24 @@
  */
 package com.codeasylum.bank.core;
 
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import com.codeasylum.bank.core.topology.Topology;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Bank {
+
+  public Bank (String configDir)
+    throws IOException {
+
+    Topology topology;
+
+    if ((topology = Topology.read(FileSystems.getDefault().getPath(configDir))) == null) {
+      System.out.println("Go get topology");
+    }
+
+    System.out.println(topology);
+  }
 
   public static void main (String... args) {
 

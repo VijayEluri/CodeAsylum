@@ -15,9 +15,13 @@
     <property name="locations">
       <list>
         <value>classpath:com/codeasylum/bank/core/default.properties</value>
-        <value>file:/etc/bank/conf/bank.properties</value>
+        <value>file:${config.dir}/bank.properties</value>
       </list>
     </property>
+  </bean>
+
+  <bean class="com.codeasylum.bank.core.Bank">
+    <constructor-arg index="0" name="configDir" value="${config.dir}"/>
   </bean>
 
 </beans>

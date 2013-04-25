@@ -26,7 +26,15 @@
  */
 package com.codeasylum.bank.core.topology;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import com.codeasylum.bank.core.paxos.Model;
+import com.thoughtworks.xstream.XStream;
 
 public class Topology extends Model {
 
@@ -42,6 +50,21 @@ public class Topology extends Model {
     circle = new Circle(partitioner, segmentation);
   }
 
+  public static Topology read (Path path)
+    throws IOException {
+
+    Path filePath;
+
+    if (Files.isRegularFile(filePath = path.resolve("topology.xml"))) {
+      try (BufferedReader reader = Files.newBufferedReader(filePath, Charset.defaultCharset())) {
+
+        return (Topology)new XStream().fromXML(reader);
+      }
+    }
+
+    return null;
+  }
+
   public String getName () {
 
     return name;
@@ -55,5 +78,14 @@ public class Topology extends Model {
   public Circle getCircle () {
 
     return circle;
+  }
+
+  public synchronized void write (Path path)
+    throws IOException {
+
+    BufferedWriter writer = Files.newBufferedWriter(path.resolve("topology.xml"), Charset.defaultCharset(), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+    new XStream().toXML(this, writer);
+    writer.close();
   }
 }
