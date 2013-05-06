@@ -24,7 +24,7 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.bank.core.paxos;
+package com.codeasylum.bank.core.topology;
 
 import java.io.Serializable;
 

@@ -33,7 +33,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import com.codeasylum.bank.core.paxos.Model;
 import com.thoughtworks.xstream.XStream;
 
 public class Topology extends Model {
