@@ -103,6 +103,7 @@ public class Circle implements Serializable {
     } while (true);
   }
 
+  // TODO: Will be useful later
   public synchronized void foo () {
 
     HashMap<Node, BigInteger> spaceMap = new HashMap<>();
