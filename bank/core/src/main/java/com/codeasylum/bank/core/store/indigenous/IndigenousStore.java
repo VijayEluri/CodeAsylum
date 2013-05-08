@@ -1,12 +1,23 @@
 package com.codeasylum.bank.core.store.indigenous;
 
-/**
- * Created with IntelliJ IDEA.
- * User: david.berkman
- * Date: 5/8/13
- * Time: 1:58 PM
- * To change this template use File | Settings | File Templates.
- */
-public class IndigenousStore {
+import com.codeasylum.bank.core.Key;
+import com.codeasylum.bank.core.Value;
+import com.codeasylum.bank.core.store.Store;
 
+public class IndigenousStore implements Store {
+
+  @Override
+  public void insert (Key key, Value value) {
+    //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public void update (Key key, Value value) {
+    //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public void delete (Key key) {
+    //To change body of implemented methods use File | Settings | File Templates.
+  }
 }
