@@ -24,11 +24,8 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.bank.core.topology;
+package com.codeasylum.bank.core;
 
-import java.io.Serializable;
+public interface Key extends Value {
 
-public interface Partitioner extends Serializable {
-
-  long getToken (Key key);
 }

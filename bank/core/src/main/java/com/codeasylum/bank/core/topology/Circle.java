@@ -38,17 +38,18 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import com.codeasylum.bank.core.Key;
 
 public class Circle implements Serializable {
 
   private final LinkedList<Node> nodes = new LinkedList<>();
-  private final Partitioner partitioner;
+  private final Tokenizer tokenizer;
   private final int segmentation;
   private transient TreeMap<Long, Node> circumference;
 
-  public Circle (Partitioner partitioner, int segmentation) {
+  public Circle (Tokenizer tokenizer, int segmentation) {
 
-    this.partitioner = partitioner;
+    this.tokenizer = tokenizer;
     this.segmentation = segmentation;
 
     loadCircumference();
@@ -84,7 +85,7 @@ public class Circle implements Serializable {
         long[] tokens = new long[segmentation];
 
         for (int segment = 0; segment < segmentation; segment++) {
-          if (circumference.containsKey(tokens[segment] = partitioner.getToken(new IdentityKey(identity, segment)))) {
+          if (circumference.containsKey(tokens[segment] = tokenizer.toLong(new IdentityKey(identity, segment)))) {
             collision = true;
             break;
           }
@@ -162,7 +163,7 @@ public class Circle implements Serializable {
 
     Map.Entry<Long, Node> tokenEntry;
 
-    if ((tokenEntry = circumference.floorEntry(partitioner.getToken(key))) == null) {
+    if ((tokenEntry = circumference.floorEntry(tokenizer.toLong(key))) == null) {
       if ((tokenEntry = circumference.lastEntry()) == null) {
 
         return null;
@@ -197,7 +198,7 @@ public class Circle implements Serializable {
     }
 
     @Override
-    public byte[] getBytes () {
+    public byte[] asBytes () {
 
       return (identity + segment).getBytes();
     }

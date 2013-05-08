@@ -26,30 +26,47 @@
  */
 package com.codeasylum.bank.core.topology;
 
-import java.util.LinkedList;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import com.codeasylum.bank.core.Key;
+import org.smallmind.nutsnbolts.util.Bytes;
 
-public class Foo {
+public class SHA3Tokenizer implements Tokenizer {
 
-  public static void main (String... args)
-    throws Exception {
+  private transient SHA3 sha3;
 
-    Topology topology = new Topology("test", new SHA3Tokenizer(), 256);
-    LinkedList<Node> nodeList = new LinkedList<>();
+  public SHA3Tokenizer () {
 
-    for (int loop = 0; loop < 20; loop++) {
+    loadPartitionerImplementations();
+  }
 
-      Node node;
+  private void loadPartitionerImplementations () {
 
-      System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-      node = topology.getCircle().join();
-      nodeList.add(node);
-      topology.getCircle().foo();
+    sha3 = new SHA3(1536, 64, 64);
+  }
+
+  @Override
+  public synchronized long toLong (Key key) {
+
+    try {
+      return Bytes.getLong(sha3.digest(key.asBytes()));
     }
-
-    for (Node node : nodeList) {
-      System.out.println("################################################################");
-      topology.getCircle().remove(node.getIdentity());
-      topology.getCircle().foo();
+    finally {
+      sha3.reset();
     }
+  }
+
+  private void writeObject (ObjectOutputStream out)
+    throws IOException {
+
+    out.defaultWriteObject();
+  }
+
+  private void readObject (ObjectInputStream in)
+    throws IOException, ClassNotFoundException {
+
+    in.defaultReadObject();
+    loadPartitionerImplementations();
   }
 }

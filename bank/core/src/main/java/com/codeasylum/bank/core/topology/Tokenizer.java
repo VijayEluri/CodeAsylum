@@ -26,7 +26,10 @@
  */
 package com.codeasylum.bank.core.topology;
 
-public interface Key {
+import java.io.Serializable;
+import com.codeasylum.bank.core.Key;
 
-  public byte[] getBytes ();
+public interface Tokenizer extends Serializable {
+
+  long toLong (Key key);
 }

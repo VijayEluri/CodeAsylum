@@ -41,12 +41,12 @@ public class Topology extends Model {
   private final String name;
   private final long inception;
 
-  public Topology (String name, Partitioner partitioner, int segmentation) {
+  public Topology (String name, Tokenizer tokenizer, int segmentation) {
 
     this.name = name;
 
     inception = System.currentTimeMillis();
-    circle = new Circle(partitioner, segmentation);
+    circle = new Circle(tokenizer, segmentation);
   }
 
   public static Topology read (Path path)
