@@ -1,4 +1,7 @@
-package com.codeasylum.bank.core;
+package com.codeasylum.bank.core.store;
+
+import com.codeasylum.bank.core.Key;
+import com.codeasylum.bank.core.Value;
 
 public interface Store<K extends Key, V extends Value> {
 
