@@ -133,7 +133,7 @@ public class Circle implements Serializable {
     for (Map.Entry<Node, BigInteger> spaceEntry : spaceMap.entrySet()) {
       System.out.println(spaceEntry.getKey().getIdentity() + ":" + spaceEntry.getValue() + ":" + new BigDecimal(spaceEntry.getValue()).divide(new BigDecimal(sum)));
     }
-    System.out.println("Total=" + sum);
+    System.out.println("N=" + nodes.size() + " Total=" + sum);
   }
 
   public synchronized boolean remove (String identity)
@@ -158,6 +158,11 @@ public class Circle implements Serializable {
     }
 
     return false;
+  }
+
+  public synchronized int size () {
+
+    return nodes.size();
   }
 
   public synchronized Node get (Key key) {

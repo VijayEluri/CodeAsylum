@@ -36,20 +36,25 @@ public class Foo {
     Topology topology = new Topology("test", new SHA3Tokenizer(), 256);
     LinkedList<Node> nodeList = new LinkedList<>();
 
-    for (int loop = 0; loop < 20; loop++) {
+    for (int loop = 0; loop < 5000; loop++) {
 
       Node node;
 
-      System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
       node = topology.getCircle().join();
       nodeList.add(node);
-      topology.getCircle().foo();
+      System.out.println(topology.getCircle().size());
     }
+    topology.getCircle().foo();
 
     for (Node node : nodeList) {
-      System.out.println("################################################################");
       topology.getCircle().remove(node.getIdentity());
-      topology.getCircle().foo();
+      if (topology.getCircle().size() < 3) {
+        System.out.println("################################################################");
+        topology.getCircle().foo();
+      }
+      else {
+        System.out.println(topology.getCircle().size());
+      }
     }
   }
 }
