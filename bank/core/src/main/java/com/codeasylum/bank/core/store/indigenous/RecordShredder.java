@@ -39,7 +39,7 @@ public class RecordShredder {
     throws Exception {
 
     RecordShredder r = new RecordShredder(new JsonConverter("{\"content\": {\n" +
-      "    \"members\": [[\n" +
+      "    \"members\": [\n" +
       "        {\n" +
       "            \"id\": 708,\n" +
       "            \"targetState\": \"ACTIVE\",\n" +
@@ -58,7 +58,7 @@ public class RecordShredder {
       "            \"id\": 105,\n" +
       "            \"targetState\": \"BANNED\"\n" +
       "        }\n" +
-      "    ]],\n" +
+      "    ],\n" +
       "    \"override\": false\n" +
       "}}"));
 
