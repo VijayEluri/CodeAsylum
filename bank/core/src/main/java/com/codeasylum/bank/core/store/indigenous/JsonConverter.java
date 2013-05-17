@@ -27,6 +27,7 @@
 package com.codeasylum.bank.core.store.indigenous;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import com.codeasylum.bank.core.ProcessException;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -38,8 +39,10 @@ public class JsonConverter extends Converter {
 
   private static final JsonFactory JSON_FACTORY = new JsonFactory();
   private final JsonParser parser;
-  private final LinkedList<String> path = new LinkedList<>();
-  private Column<?> nextColumn;
+  private final HashMap<PathKey, Field> fieldMap = new HashMap<>();
+  private LinkedList<Field> fieldList = new LinkedList<>();
+  private Record<?> nextRecord;
+  private int counter = 0;
 
   public JsonConverter (String json)
     throws IOException, ProcessException {
@@ -51,31 +54,31 @@ public class JsonConverter extends Converter {
       throw new ProcessException(ioException);
     }
 
-    nextColumn = findNext();
+    nextRecord = findNext();
   }
 
   @Override
   public boolean hasNext () {
 
-    return nextColumn != null;
+    return nextRecord != null;
   }
 
   @Override
-  public Column<?> next () {
+  public Record<?> next () {
 
-    Column<?> column = nextColumn;
+    Record<?> record = nextRecord;
 
     try {
-      nextColumn = findNext();
+      nextRecord = findNext();
     }
     catch (Exception exception) {
       throw new RuntimeException(exception);
     }
 
-    return column;
+    return record;
   }
 
-  private Column<?> findNext ()
+  private Record<?> findNext ()
     throws IOException, ProcessException {
 
     JsonToken token;
@@ -99,73 +102,73 @@ public class JsonConverter extends Converter {
           throw new ProcessException("Use of reserved character '.' within field name(%s)", name);
         }
 
-        path.addLast(name);
-        System.out.println(path.toString());
+        fieldList.addLast(getField(name));
+        System.out.println(fieldList.toString());
         break;
       case START_OBJECT:
-        if ((!path.isEmpty()) && (path.getLast().equals("array"))) {
-          path.addLast("object");
-          System.out.println(path.toString());
+        if ((!fieldList.isEmpty()) && (fieldList.getLast().getName().equals("array"))) {
+          fieldList.addLast(getField("object"));
+          System.out.println(fieldList.toString());
         }
         break;
       case START_ARRAY:
-        path.addLast("array");
-        System.out.println(path.toString());
+        fieldList.addLast(getField("array"));
+        System.out.println(fieldList.toString());
         break;
       case END_OBJECT:
-        if (!path.isEmpty()) {
-          path.removeLast();
+        if (!fieldList.isEmpty()) {
+          fieldList.removeLast();
         }
-        System.out.println(path.toString());
+        System.out.println(fieldList.toString());
         break;
       case END_ARRAY:
-        path.removeLast();
-        if ((!path.isEmpty()) && (!path.getLast().equals("array"))) {
-          path.removeLast();
+        fieldList.removeLast();
+        if ((!fieldList.isEmpty()) && (!fieldList.getLast().getName().equals("array"))) {
+          fieldList.removeLast();
         }
-        System.out.println(path.toString());
+        System.out.println(fieldList.toString());
         break;
       case VALUE_STRING:
         try {
-          return new Column<String>(concatenatePath(), parser.getValueAsString());
+          return new Record<String>(new Path(fieldList), parser.getValueAsString());
         }
         finally {
-          path.removeLast();
+          fieldList.removeLast();
         }
       case VALUE_NUMBER_INT:
         try {
-          return new Column<Long>(concatenatePath(), parser.getValueAsLong());
+          return new Record<Long>(new Path(fieldList), parser.getValueAsLong());
         }
         finally {
-          path.removeLast();
+          fieldList.removeLast();
         }
       case VALUE_NUMBER_FLOAT:
         try {
-          return new Column<Double>(concatenatePath(), parser.getValueAsDouble());
+          return new Record<Double>(new Path(fieldList), parser.getValueAsDouble());
         }
         finally {
-          path.removeLast();
+          fieldList.removeLast();
         }
       case VALUE_TRUE:
         try {
-          return new Column<Boolean>(concatenatePath(), true);
+          return new Record<Boolean>(new Path(fieldList), true);
         }
         finally {
-          path.removeLast();
+          fieldList.removeLast();
         }
       case VALUE_FALSE:
         try {
-          return new Column<Boolean>(concatenatePath(), false);
+          return new Record<Boolean>(new Path(fieldList), false);
         }
         finally {
-          path.removeLast();
+          fieldList.removeLast();
         }
       case VALUE_NULL:
         try {
-          return new Column<Void>(concatenatePath(), null);
+          return new Record<Void>(new Path(fieldList), null);
         }
         finally {
-          path.removeLast();
+          fieldList.removeLast();
         }
       default:
         throw new UnknownSwitchCaseException(token.name());
@@ -174,20 +177,49 @@ public class JsonConverter extends Converter {
     return null;
   }
 
-  private String concatenatePath () {
+  private Field getField (String name) {
 
-    StringBuilder pathBuilder = new StringBuilder();
-    boolean first = true;
+    PathKey pathKey;
+    Field field;
 
-    for (String pathComponent : path) {
-      if (!first) {
-        pathBuilder.append('.');
-      }
-      first = false;
-
-      pathBuilder.append(pathComponent);
+    if ((field = fieldMap.get(pathKey = new PathKey(new Path(fieldList), name))) == null) {
+      fieldMap.put(pathKey, field = new Field(counter++, name, true, true));
     }
 
-    return pathBuilder.toString();
+    return field;
+  }
+
+  private class PathKey {
+
+    private Path path;
+    private String name;
+
+    private PathKey (Path path, String name) {
+
+      this.path = path;
+      this.name = name;
+    }
+
+    private Path getPath () {
+
+      return path;
+    }
+
+    private String getName () {
+
+      return name;
+    }
+
+    @Override
+    public int hashCode () {
+
+      return path.hashCode() ^ name.hashCode();
+    }
+
+    @Override
+    public boolean equals (Object obj) {
+
+      return (obj instanceof PathKey) && ((PathKey)obj).getPath().equals(getPath()) && ((PathKey)obj).getName().equals(getName());
+    }
   }
 }

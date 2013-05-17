@@ -28,7 +28,7 @@ package com.codeasylum.bank.core.store.indigenous;
 
 import java.util.Iterator;
 
-public abstract class Converter implements Iterator<Column<?>> {
+public abstract class Converter implements Iterator<Record<?>> {
 
   @Override
   public final void remove () {

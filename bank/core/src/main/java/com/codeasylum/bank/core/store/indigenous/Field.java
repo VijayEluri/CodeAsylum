@@ -26,51 +26,56 @@
  */
 package com.codeasylum.bank.core.store.indigenous;
 
-public class RecordShredder {
+public class Field {
 
-  private final Converter converter;
+  private String name;
+  private boolean optional;
+  private boolean repeated;
+  private int id;
 
-  public RecordShredder (Converter converter) {
+  public Field (int id, String name, boolean optional, boolean repeated) {
 
-    this.converter = converter;
+    this.id = id;
+    this.name = name;
+    this.optional = optional;
+    this.repeated = repeated;
   }
 
-  public static void main (String... args)
-    throws Exception {
+  public int getId () {
 
-    RecordShredder r = new RecordShredder(new JsonConverter("{\"content\": {\n" +
-      "    \"members\": [\n" +
-      "        {\n" +
-      "            \"id\": 708,\n" +
-      "            \"targetState\": \"ACTIVE\",\n" +
-      "            \"role\": \"Peon\"\n" +
-      "        },\n" +
-      "        {\n" +
-      "            \"id\": 21,\n" +
-      "            \"targetState\": \"INVITED\"\n" +
-      "        },\n" +
-      "        {\n" +
-      "            \"id\": 3206,\n" +
-      "            \"targetState\": \"ACTIVE\",\n" +
-      "            \"role\": \"Rush Chairman\"\n" +
-      "        },\n" +
-      "        {\n" +
-      "            \"id\": 105,\n" +
-      "            \"targetState\": \"BANNED\"\n" +
-      "        }\n" +
-      "    ],\n" +
-      "    \"override\": false\n" +
-      "}}"));
-
-    r.shred();
+    return id;
   }
 
-  public void shred () {
+  public String getName () {
 
-    int repetitionLevel = 0;
+    return name;
+  }
 
-    while (converter.hasNext()) {
-      System.out.println(converter.next());
-    }
+  public boolean isOptional () {
+
+    return optional;
+  }
+
+  public boolean isRepeated () {
+
+    return repeated;
+  }
+
+  @Override
+  public String toString () {
+
+    return new StringBuilder(Field.class.getSimpleName()).append("[id=").append(id).append(", name=").append(name).append(", optional=").append(optional).append(", repeated=").append(repeated).append("]").toString();
+  }
+
+  @Override
+  public int hashCode () {
+
+    return id;
+  }
+
+  @Override
+  public boolean equals (Object obj) {
+
+    return (obj instanceof Field) && (((Field)obj).getId() == getId());
   }
 }

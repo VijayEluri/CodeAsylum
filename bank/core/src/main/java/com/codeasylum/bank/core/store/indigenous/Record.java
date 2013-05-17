@@ -26,20 +26,37 @@
  */
 package com.codeasylum.bank.core.store.indigenous;
 
-public class Column<T> {
+public class Record<T> {
 
-  private String key;
+  private Path path;
   private T value;
 
-  public Column (String key, T value) {
+  public Record (Path path, T value) {
 
-    this.key = key;
+    this.path = path;
     this.value = value;
+  }
+
+  public int getDepth () {
+
+    return path.size();
   }
 
   public String getKey () {
 
-    return key;
+    StringBuilder keyBuilder = new StringBuilder();
+    boolean first = true;
+
+    for (Field field : path) {
+      if (!first) {
+        keyBuilder.append('.');
+      }
+      first = false;
+
+      keyBuilder.append(field.getName());
+    }
+
+    return keyBuilder.toString();
   }
 
   public T getValue () {
@@ -50,6 +67,6 @@ public class Column<T> {
   @Override
   public String toString () {
 
-    return new StringBuilder("[key=").append(key).append(", value=").append(value).append(']').toString();
+    return new StringBuilder("[key=").append(getKey()).append(", value=").append(value).append(']').toString();
   }
 }
