@@ -28,6 +28,7 @@ package com.codeasylum.bank.core.store.indigenous;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import com.codeasylum.bank.core.ProcessException;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -41,6 +42,7 @@ public class JsonConverter extends Converter {
   private final JsonParser parser;
   private final HashMap<PathKey, Field> fieldMap = new HashMap<>();
   private LinkedList<Field> fieldList = new LinkedList<>();
+  private LinkedList<Field> lastClosedPath;
   private Record<?> nextRecord;
   private int counter = 0;
 
@@ -92,12 +94,6 @@ public class JsonConverter extends Converter {
 
         String name = parser.getCurrentName();
 
-        if (name.equals("array")) {
-          throw new ProcessException("Use of reserved word 'array' as a field name");
-        }
-        if (name.equals("object")) {
-          throw new ProcessException("Use of reserved word 'object' as a field name");
-        }
         if (name.indexOf('.') >= 0) {
           throw new ProcessException("Use of reserved character '.' within field name(%s)", name);
         }
@@ -106,69 +102,90 @@ public class JsonConverter extends Converter {
         System.out.println(fieldList.toString());
         break;
       case START_OBJECT:
-        if ((!fieldList.isEmpty()) && (fieldList.getLast().getName().equals("array"))) {
-          fieldList.addLast(getField("object"));
-          System.out.println(fieldList.toString());
+        if (!fieldList.isEmpty()) {
+          fieldList.getLast().setGroup(true);
         }
+        System.out.println(fieldList.toString());
         break;
       case START_ARRAY:
-        fieldList.addLast(getField("array"));
+        if (!fieldList.isEmpty()) {
+          fieldList.getLast().setRepeated(true);
+        }
         System.out.println(fieldList.toString());
         break;
       case END_OBJECT:
-        if (!fieldList.isEmpty()) {
+        if ((!fieldList.isEmpty()) && (!fieldList.getLast().isRepeated())) {
+          lastClosedPath = new LinkedList<>(fieldList);
           fieldList.removeLast();
         }
         System.out.println(fieldList.toString());
         break;
       case END_ARRAY:
-        fieldList.removeLast();
-        if ((!fieldList.isEmpty()) && (!fieldList.getLast().getName().equals("array"))) {
+        if (!fieldList.isEmpty()) {
+          lastClosedPath = new LinkedList<>(fieldList);
           fieldList.removeLast();
         }
         System.out.println(fieldList.toString());
         break;
       case VALUE_STRING:
         try {
-          return new Record<String>(new Path(fieldList), parser.getValueAsString());
+          return new Record<String>(new Path(fieldList), parser.getValueAsString(), getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          fieldList.removeLast();
+          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
+            lastClosedPath = new LinkedList<>(fieldList);
+            fieldList.removeLast();
+          }
         }
       case VALUE_NUMBER_INT:
         try {
-          return new Record<Long>(new Path(fieldList), parser.getValueAsLong());
+          return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          fieldList.removeLast();
+          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
+            lastClosedPath = new LinkedList<>(fieldList);
+            fieldList.removeLast();
+          }
         }
       case VALUE_NUMBER_FLOAT:
         try {
-          return new Record<Double>(new Path(fieldList), parser.getValueAsDouble());
+          return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          fieldList.removeLast();
+          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
+            lastClosedPath = new LinkedList<>(fieldList);
+            fieldList.removeLast();
+          }
         }
       case VALUE_TRUE:
         try {
-          return new Record<Boolean>(new Path(fieldList), true);
+          return new Record<Boolean>(new Path(fieldList), true, getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          fieldList.removeLast();
+          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
+            lastClosedPath = new LinkedList<>(fieldList);
+            fieldList.removeLast();
+          }
         }
       case VALUE_FALSE:
         try {
-          return new Record<Boolean>(new Path(fieldList), false);
+          return new Record<Boolean>(new Path(fieldList), false, getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          fieldList.removeLast();
+          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
+            lastClosedPath = new LinkedList<>(fieldList);
+            fieldList.removeLast();
+          }
         }
       case VALUE_NULL:
         try {
-          return new Record<Void>(new Path(fieldList), null);
+          return new Record<Void>(new Path(fieldList), null, getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          fieldList.removeLast();
+          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
+            lastClosedPath = new LinkedList<>(fieldList);
+            fieldList.removeLast();
+          }
         }
       default:
         throw new UnknownSwitchCaseException(token.name());
@@ -177,13 +194,50 @@ public class JsonConverter extends Converter {
     return null;
   }
 
-  private Field getField (String name) {
+  private int getRepetitionLevel () {
+
+    int repetitionLevel = 0;
+
+    if (lastClosedPath != null) {
+
+      Iterator<Field> currentIter = fieldList.iterator();
+      Iterator<Field> lastIter = lastClosedPath.iterator();
+      Field field;
+
+      if (currentIter.hasNext() && lastIter.hasNext()) {
+        if ((currentIter.next().equals(field = lastIter.next())) && field.isRepeated()) {
+          repetitionLevel++;
+        }
+      }
+    }
+
+    return repetitionLevel;
+  }
+
+  private int getDefinitionLevel () {
+
+    int definitionLevel = 0;
+
+    for (Field field : fieldList) {
+      if (field.isOptional() || field.isRepeated()) {
+        definitionLevel++;
+      }
+    }
+
+    return definitionLevel;
+  }
+
+  private Field getField (String name)
+    throws ProcessException {
 
     PathKey pathKey;
     Field field;
 
     if ((field = fieldMap.get(pathKey = new PathKey(new Path(fieldList), name))) == null) {
-      fieldMap.put(pathKey, field = new Field(counter++, name, true, true));
+      fieldMap.put(pathKey, field = new Field(counter++, name));
+    }
+    else {
+      field.setRepeated(true);
     }
 
     return field;

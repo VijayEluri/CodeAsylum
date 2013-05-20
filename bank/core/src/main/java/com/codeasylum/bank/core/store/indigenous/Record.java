@@ -28,18 +28,42 @@ package com.codeasylum.bank.core.store.indigenous;
 
 public class Record<T> {
 
-  private Path path;
-  private T value;
+  private final Path path;
+  private final T value;
+  private final int repetitionLevel;
+  private final int definitionLevel;
 
-  public Record (Path path, T value) {
+  public Record (Path path, T value, int repetitionLevel, int definitionLevel) {
 
     this.path = path;
     this.value = value;
+    this.repetitionLevel = repetitionLevel;
+    this.definitionLevel = definitionLevel;
   }
 
   public int getDepth () {
 
     return path.size();
+  }
+
+  public Path getPath () {
+
+    return path;
+  }
+
+  public T getValue () {
+
+    return value;
+  }
+
+  public int getRepetitionLevel () {
+
+    return repetitionLevel;
+  }
+
+  public int getDefinitionLevel () {
+
+    return definitionLevel;
   }
 
   public String getKey () {
@@ -59,14 +83,9 @@ public class Record<T> {
     return keyBuilder.toString();
   }
 
-  public T getValue () {
-
-    return value;
-  }
-
   @Override
   public String toString () {
 
-    return new StringBuilder("[key=").append(getKey()).append(", value=").append(value).append(']').toString();
+    return new StringBuilder("[key=").append(getKey()).append(", value=").append(value).append(", repetitionLevel=").append(repetitionLevel).append(", definitionLevel=").append(definitionLevel).append(']').toString();
   }
 }

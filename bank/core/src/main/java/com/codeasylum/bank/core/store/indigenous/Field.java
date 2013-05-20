@@ -26,19 +26,20 @@
  */
 package com.codeasylum.bank.core.store.indigenous;
 
+import com.codeasylum.bank.core.ProcessException;
+
 public class Field {
 
-  private String name;
-  private boolean optional;
-  private boolean repeated;
-  private int id;
+  private final String name;
+  private final int id;
+  private Boolean group;
+  private Boolean repeated;
+  private Boolean optional;
 
-  public Field (int id, String name, boolean optional, boolean repeated) {
+  public Field (int id, String name) {
 
     this.id = id;
     this.name = name;
-    this.optional = optional;
-    this.repeated = repeated;
   }
 
   public int getId () {
@@ -51,20 +52,61 @@ public class Field {
     return name;
   }
 
-  public boolean isOptional () {
+  public boolean isGroup () {
 
-    return optional;
+    return (group == null) ? false : group;
+  }
+
+  public Field setGroup (boolean group)
+    throws ProcessException {
+
+    if ((this.group != null) && (this.group != group)) {
+      throw new ProcessException("Field(%s) has already been marked as a group(%b)", name, this.group);
+    }
+
+    this.group = group;
+
+    return this;
   }
 
   public boolean isRepeated () {
 
-    return repeated;
+    return (repeated == null) ? false : repeated;
+  }
+
+  public Field setRepeated (boolean repeated)
+    throws ProcessException {
+
+    if ((this.repeated != null) && (this.repeated != repeated)) {
+      throw new ProcessException("Field(%s) has already been marked repeated(%b)", name, this.repeated);
+    }
+
+    this.repeated = repeated;
+
+    return this;
+  }
+
+  public boolean isOptional () {
+
+    return (optional == null) ? false : optional;
+  }
+
+  public Field setOptional (boolean optional)
+    throws ProcessException {
+
+    if ((this.optional != null) && (this.optional != optional)) {
+      throw new ProcessException("Field(%s) has already been marked optional(%b)", name, this.optional);
+    }
+
+    this.optional = optional;
+
+    return this;
   }
 
   @Override
   public String toString () {
 
-    return new StringBuilder(Field.class.getSimpleName()).append("[id=").append(id).append(", name=").append(name).append(", optional=").append(optional).append(", repeated=").append(repeated).append("]").toString();
+    return new StringBuilder(Field.class.getSimpleName()).append("[id=").append(id).append(", name=").append(name).append(", group=").append(group).append(", repeated=").append(repeated).append(", optional=").append(optional).append("]").toString();
   }
 
   @Override

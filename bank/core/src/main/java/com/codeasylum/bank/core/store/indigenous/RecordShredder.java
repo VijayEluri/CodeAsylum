@@ -38,7 +38,7 @@ public class RecordShredder {
   public static void main (String... args)
     throws Exception {
 
-    RecordShredder r = new RecordShredder(new JsonConverter("{\"content\": {\n" +
+    String foo = "{\"content\": {\n" +
       "    \"members\": [\n" +
       "        {\n" +
       "            \"id\": 708,\n" +
@@ -60,14 +60,50 @@ public class RecordShredder {
       "        }\n" +
       "    ],\n" +
       "    \"override\": false\n" +
-      "}}"));
+      "}}";
+
+    String bar = "{\n" +
+      "    \"docId\": 10,\n" +
+      "    \"links\": {\n" +
+      "        \"forward\": [\n" +
+      "            20,\n" +
+      "            40,\n" +
+      "            60\n" +
+      "        ]\n" +
+      "    },\n" +
+      "    \"name\": [\n" +
+      "        {\n" +
+      "            \"language\": [\n" +
+      "                {\n" +
+      "                    \"code\": \"en-us\",\n" +
+      "                    \"country\": \"us\"\n" +
+      "                },\n" +
+      "                {\n" +
+      "                    \"code\": \"en\"\n" +
+      "                }\n" +
+      "            ],\n" +
+      "            \"url\": \"http://A\"\n" +
+      "        },\n" +
+      "        {\n" +
+      "            \"url\": \"http://B\"\n" +
+      "        },\n" +
+      "        {\n" +
+      "            \"language\": [\n" +
+      "                {\n" +
+      "                    \"code\": \"en-gb\",\n" +
+      "                    \"country\": \"gb\"\n" +
+      "                }\n" +
+      "            ]\n" +
+      "        }\n" +
+      "    ]\n" +
+      "}";
+
+    RecordShredder r = new RecordShredder(new JsonConverter(bar));
 
     r.shred();
   }
 
   public void shred () {
-
-    int repetitionLevel = 0;
 
     while (converter.hasNext()) {
       System.out.println(converter.next());

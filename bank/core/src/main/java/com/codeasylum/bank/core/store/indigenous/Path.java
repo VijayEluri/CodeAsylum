@@ -57,6 +57,20 @@ public class Path implements Iterable<Field> {
     return fields;
   }
 
+  public int repetitionDepth (Path path) {
+
+    int index = 0;
+
+    while ((index < size()) && (index < path.size())) {
+      if (fields[index].getId() != path.getFields()[index].getId()) {
+        break;
+      }
+      index++;
+    }
+
+    return index;
+  }
+
   @Override
   public Iterator<Field> iterator () {
 
