@@ -237,7 +237,7 @@ public class JsonConverter extends Converter {
       fieldMap.put(pathKey, field = new Field(counter++, name));
     }
 
-    
+
 
     return field;
   }
