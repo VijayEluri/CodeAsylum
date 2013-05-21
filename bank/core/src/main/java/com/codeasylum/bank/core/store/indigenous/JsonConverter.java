@@ -44,6 +44,7 @@ public class JsonConverter extends Converter {
   private LinkedList<Field> fieldList = new LinkedList<>();
   private LinkedList<Field> lastClosedFieldList;
   private Record<?> nextRecord;
+  private int repetitionLevel = 0;
   private int counter = 0;
 
   public JsonConverter (String json)
@@ -98,13 +99,14 @@ public class JsonConverter extends Converter {
           throw new ProcessException("Use of reserved character '.' within field name(%s)", name);
         }
 
-        fieldList.addLast(getField(name));
+        appendField(name);
         System.out.println(fieldList.toString());
         break;
       case START_OBJECT:
         if (!fieldList.isEmpty()) {
           fieldList.getLast().setGroup(true);
         }
+        setRepetitionLevel();
         System.out.println(fieldList.toString());
         break;
       case START_ARRAY:
@@ -128,8 +130,9 @@ public class JsonConverter extends Converter {
         System.out.println(fieldList.toString());
         break;
       case VALUE_STRING:
+        setRepetitionLevel();
         try {
-          return new Record<String>(new Path(fieldList), parser.getValueAsString(), getRepetitionLevel(), getDefinitionLevel());
+          return new Record<String>(new Path(fieldList), parser.getValueAsString(), repetitionLevel, getDefinitionLevel());
         }
         finally {
           lastClosedFieldList = new LinkedList<>(fieldList);
@@ -138,8 +141,9 @@ public class JsonConverter extends Converter {
           }
         }
       case VALUE_NUMBER_INT:
+        setRepetitionLevel();
         try {
-          return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), getRepetitionLevel(), getDefinitionLevel());
+          return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), repetitionLevel, getDefinitionLevel());
         }
         finally {
           lastClosedFieldList = new LinkedList<>(fieldList);
@@ -148,8 +152,9 @@ public class JsonConverter extends Converter {
           }
         }
       case VALUE_NUMBER_FLOAT:
+        setRepetitionLevel();
         try {
-          return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), getRepetitionLevel(), getDefinitionLevel());
+          return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), repetitionLevel, getDefinitionLevel());
         }
         finally {
           lastClosedFieldList = new LinkedList<>(fieldList);
@@ -158,8 +163,9 @@ public class JsonConverter extends Converter {
           }
         }
       case VALUE_TRUE:
+        setRepetitionLevel();
         try {
-          return new Record<Boolean>(new Path(fieldList), true, getRepetitionLevel(), getDefinitionLevel());
+          return new Record<Boolean>(new Path(fieldList), true, repetitionLevel, getDefinitionLevel());
         }
         finally {
           lastClosedFieldList = new LinkedList<>(fieldList);
@@ -168,8 +174,9 @@ public class JsonConverter extends Converter {
           }
         }
       case VALUE_FALSE:
+        setRepetitionLevel();
         try {
-          return new Record<Boolean>(new Path(fieldList), false, getRepetitionLevel(), getDefinitionLevel());
+          return new Record<Boolean>(new Path(fieldList), false, repetitionLevel, getDefinitionLevel());
         }
         finally {
           lastClosedFieldList = new LinkedList<>(fieldList);
@@ -178,8 +185,9 @@ public class JsonConverter extends Converter {
           }
         }
       case VALUE_NULL:
+        setRepetitionLevel();
         try {
-          return new Record<Void>(new Path(fieldList), null, getRepetitionLevel(), getDefinitionLevel());
+          return new Record<Void>(new Path(fieldList), null, repetitionLevel, getDefinitionLevel());
         }
         finally {
           lastClosedFieldList = new LinkedList<>(fieldList);
@@ -192,26 +200,6 @@ public class JsonConverter extends Converter {
     }
 
     return null;
-  }
-
-  private int getRepetitionLevel () {
-
-    int repetitionLevel = 0;
-
-    if (lastClosedFieldList != null) {
-
-      Iterator<Field> currentIter = fieldList.iterator();
-      Iterator<Field> lastIter = lastClosedFieldList.iterator();
-      Field field;
-
-      while (currentIter.hasNext() && lastIter.hasNext()) {
-        if ((currentIter.next().equals(field = lastIter.next())) && field.isRepeated()) {
-          repetitionLevel++;
-        }
-      }
-    }
-
-    return repetitionLevel;
   }
 
   private int getDefinitionLevel () {
@@ -227,7 +215,7 @@ public class JsonConverter extends Converter {
     return definitionLevel;
   }
 
-  private Field getField (String name)
+  private void appendField (String name)
     throws ProcessException {
 
     PathKey pathKey;
@@ -236,10 +224,31 @@ public class JsonConverter extends Converter {
     if ((field = fieldMap.get(pathKey = new PathKey(new Path(fieldList), name))) == null) {
       fieldMap.put(pathKey, field = new Field(counter++, name));
     }
+    fieldList.add(field);
+  }
 
+  private void setRepetitionLevel () {
 
+    if ((lastClosedFieldList != null) && (fieldList.size() == lastClosedFieldList.size())) {
 
-    return field;
+      Iterator<Field> fieldIter = fieldList.iterator();
+      Iterator<Field> lastClosedFieldIter = lastClosedFieldList.iterator();
+      boolean matched = true;
+
+      while (fieldIter.hasNext()) {
+        if (!fieldIter.next().equals(lastClosedFieldIter.next())) {
+          matched = false;
+          break;
+        }
+      }
+
+      if (matched) {
+        repetitionLevel = fieldList.size();
+      }
+      else {
+        repetitionLevel = 0;
+      }
+    }
   }
 
   private class PathKey {
