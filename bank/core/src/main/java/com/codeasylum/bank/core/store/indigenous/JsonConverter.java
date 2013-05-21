@@ -42,7 +42,7 @@ public class JsonConverter extends Converter {
   private final JsonParser parser;
   private final HashMap<PathKey, Field> fieldMap = new HashMap<>();
   private LinkedList<Field> fieldList = new LinkedList<>();
-  private LinkedList<Field> lastClosedPath;
+  private LinkedList<Field> lastClosedFieldList;
   private Record<?> nextRecord;
   private int counter = 0;
 
@@ -114,15 +114,15 @@ public class JsonConverter extends Converter {
         System.out.println(fieldList.toString());
         break;
       case END_OBJECT:
-        if ((!fieldList.isEmpty()) && (!fieldList.getLast().isRepeated())) {
-          lastClosedPath = new LinkedList<>(fieldList);
+        lastClosedFieldList = new LinkedList<>(fieldList);
+        if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
           fieldList.removeLast();
         }
         System.out.println(fieldList.toString());
         break;
       case END_ARRAY:
+        lastClosedFieldList = new LinkedList<>(fieldList);
         if (!fieldList.isEmpty()) {
-          lastClosedPath = new LinkedList<>(fieldList);
           fieldList.removeLast();
         }
         System.out.println(fieldList.toString());
@@ -132,8 +132,8 @@ public class JsonConverter extends Converter {
           return new Record<String>(new Path(fieldList), parser.getValueAsString(), getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
-            lastClosedPath = new LinkedList<>(fieldList);
+          lastClosedFieldList = new LinkedList<>(fieldList);
+          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
             fieldList.removeLast();
           }
         }
@@ -142,8 +142,8 @@ public class JsonConverter extends Converter {
           return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
-            lastClosedPath = new LinkedList<>(fieldList);
+          lastClosedFieldList = new LinkedList<>(fieldList);
+          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
             fieldList.removeLast();
           }
         }
@@ -152,8 +152,8 @@ public class JsonConverter extends Converter {
           return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
-            lastClosedPath = new LinkedList<>(fieldList);
+          lastClosedFieldList = new LinkedList<>(fieldList);
+          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
             fieldList.removeLast();
           }
         }
@@ -162,8 +162,8 @@ public class JsonConverter extends Converter {
           return new Record<Boolean>(new Path(fieldList), true, getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
-            lastClosedPath = new LinkedList<>(fieldList);
+          lastClosedFieldList = new LinkedList<>(fieldList);
+          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
             fieldList.removeLast();
           }
         }
@@ -172,8 +172,8 @@ public class JsonConverter extends Converter {
           return new Record<Boolean>(new Path(fieldList), false, getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
-            lastClosedPath = new LinkedList<>(fieldList);
+          lastClosedFieldList = new LinkedList<>(fieldList);
+          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
             fieldList.removeLast();
           }
         }
@@ -182,8 +182,8 @@ public class JsonConverter extends Converter {
           return new Record<Void>(new Path(fieldList), null, getRepetitionLevel(), getDefinitionLevel());
         }
         finally {
-          if ((!fieldList.isEmpty()) && (!fieldList.getLast().isGroup()) && (!fieldList.getLast().isRepeated())) {
-            lastClosedPath = new LinkedList<>(fieldList);
+          lastClosedFieldList = new LinkedList<>(fieldList);
+          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
             fieldList.removeLast();
           }
         }
@@ -198,13 +198,13 @@ public class JsonConverter extends Converter {
 
     int repetitionLevel = 0;
 
-    if (lastClosedPath != null) {
+    if (lastClosedFieldList != null) {
 
       Iterator<Field> currentIter = fieldList.iterator();
-      Iterator<Field> lastIter = lastClosedPath.iterator();
+      Iterator<Field> lastIter = lastClosedFieldList.iterator();
       Field field;
 
-      if (currentIter.hasNext() && lastIter.hasNext()) {
+      while (currentIter.hasNext() && lastIter.hasNext()) {
         if ((currentIter.next().equals(field = lastIter.next())) && field.isRepeated()) {
           repetitionLevel++;
         }
@@ -236,9 +236,8 @@ public class JsonConverter extends Converter {
     if ((field = fieldMap.get(pathKey = new PathKey(new Path(fieldList), name))) == null) {
       fieldMap.put(pathKey, field = new Field(counter++, name));
     }
-    else {
-      field.setRepeated(true);
-    }
+
+    
 
     return field;
   }
