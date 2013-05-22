@@ -30,6 +30,13 @@ import java.util.Iterator;
 
 public abstract class Converter implements Iterator<Record<?>> {
 
+  private int counter = 0;
+
+  public int nextId () {
+
+    return ++counter;
+  }
+
   @Override
   public final void remove () {
 

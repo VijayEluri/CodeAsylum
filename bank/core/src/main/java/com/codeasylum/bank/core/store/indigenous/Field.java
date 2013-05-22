@@ -30,6 +30,7 @@ import com.codeasylum.bank.core.ProcessException;
 
 public class Field {
 
+  private static final Field ROOT_FIELD = new RootField();
   private final String name;
   private final int id;
   private Boolean group;
@@ -42,6 +43,20 @@ public class Field {
     this.name = name;
   }
 
+  public Field (int id, String name, boolean group, boolean optional, boolean repeated) {
+
+    this(id, name);
+
+    this.group = group;
+    this.optional = optional;
+    this.repeated = repeated;
+  }
+
+  public static Field root () {
+
+    return ROOT_FIELD;
+  }
+
   public int getId () {
 
     return id;
@@ -50,6 +65,11 @@ public class Field {
   public String getName () {
 
     return name;
+  }
+
+  public boolean isRoot () {
+
+    return false;
   }
 
   public boolean isGroup () {
@@ -119,5 +139,19 @@ public class Field {
   public boolean equals (Object obj) {
 
     return (obj instanceof Field) && (((Field)obj).getId() == getId());
+  }
+
+  private static class RootField extends Field {
+
+    private RootField () {
+
+      super(0, "root", true, false, false);
+    }
+
+    @Override
+    public boolean isRoot () {
+
+      return true;
+    }
   }
 }

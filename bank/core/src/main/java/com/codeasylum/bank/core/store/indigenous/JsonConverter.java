@@ -28,7 +28,6 @@ package com.codeasylum.bank.core.store.indigenous;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import com.codeasylum.bank.core.ProcessException;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -42,10 +41,8 @@ public class JsonConverter extends Converter {
   private final JsonParser parser;
   private final HashMap<PathKey, Field> fieldMap = new HashMap<>();
   private LinkedList<Field> fieldList = new LinkedList<>();
-  private LinkedList<Field> lastClosedFieldList;
+  private LinkedList<Field> arrayFieldList = new LinkedList<>();
   private Record<?> nextRecord;
-  private int repetitionLevel = 0;
-  private int counter = 0;
 
   public JsonConverter (String json)
     throws IOException, ProcessException {
@@ -86,117 +83,120 @@ public class JsonConverter extends Converter {
 
     JsonToken token;
 
-    while ((token = parser.nextToken()) != null) switch (token) {
-      case NOT_AVAILABLE:
-        throw new ProcessException("Encountered illegal token(%s)", token.name());
-      case VALUE_EMBEDDED_OBJECT:
-        throw new ProcessException("Encountered illegal token(%s)", token.name());
-      case FIELD_NAME:
+    while ((token = parser.nextToken()) != null) {
+      try {
+        switch (token) {
+          case NOT_AVAILABLE:
+            throw new ProcessException("Encountered illegal token(%s)", token.name());
+          case VALUE_EMBEDDED_OBJECT:
+            throw new ProcessException("Encountered illegal token(%s)", token.name());
+          case FIELD_NAME:
 
-        String name = parser.getCurrentName();
+            String name = parser.getCurrentName();
 
-        if (name.indexOf('.') >= 0) {
-          throw new ProcessException("Use of reserved character '.' within field name(%s)", name);
-        }
+            if (name.indexOf('.') >= 0) {
+              throw new ProcessException("Use of reserved character '.' within field name(%s)", name);
+            }
 
-        appendField(name);
-        System.out.println(fieldList.toString());
-        break;
-      case START_OBJECT:
-        if (!fieldList.isEmpty()) {
-          fieldList.getLast().setGroup(true);
+            fieldList.add(getField(name));
+            break;
+          case START_OBJECT:
+            if (fieldList.isEmpty()) {
+              fieldList.add(Field.root());
+            }
+            else {
+              fieldList.getLast().setGroup(true);
+            }
+            break;
+          case START_ARRAY:
+            if (fieldList.isEmpty() || fieldList.getLast().isRepeated()) {
+              fieldList.add(getField("array").setRepeated(true));
+            }
+            else {
+              fieldList.getLast().setRepeated(true);
+            }
+            break;
+          case END_OBJECT:
+            if (!fieldList.getLast().isRepeated()) {
+              fieldList.removeLast();
+            }
+            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
+              arrayFieldList.add(fieldList.getLast());
+            }
+            break;
+          case END_ARRAY:
+              if ((!arrayFieldList.isEmpty()) && (arrayFieldList.getLast().equals(fieldList.removeLast()))) {
+                arrayFieldList.removeLast();
+              }
+            break;
+          case VALUE_STRING:
+            return new Record<String>(new Path(fieldList), parser.getValueAsString(), arrayFieldList.size(), getDefinitionLevel());
+          case VALUE_NUMBER_INT:
+            return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), arrayFieldList.size(), getDefinitionLevel());
+          case VALUE_NUMBER_FLOAT:
+            return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), arrayFieldList.size(), getDefinitionLevel());
+          case VALUE_TRUE:
+            return new Record<Boolean>(new Path(fieldList), true, arrayFieldList.size(), getDefinitionLevel());
+          case VALUE_FALSE:
+            return new Record<Boolean>(new Path(fieldList), false, arrayFieldList.size(), getDefinitionLevel());
+          case VALUE_NULL:
+            return new Record<Void>(new Path(fieldList), null, arrayFieldList.size(), getDefinitionLevel());
+          default:
+            throw new UnknownSwitchCaseException(token.name());
         }
-        setRepetitionLevel();
-        System.out.println(fieldList.toString());
-        break;
-      case START_ARRAY:
-        if (!fieldList.isEmpty()) {
-          fieldList.getLast().setRepeated(true);
+      }
+      finally {
+        switch (token) {
+          case VALUE_STRING:
+            if (!fieldList.getLast().isRepeated()) {
+              fieldList.removeLast();
+            }
+            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
+              arrayFieldList.add(fieldList.getLast());
+            }
+            break;
+          case VALUE_NUMBER_INT:
+            if (!fieldList.getLast().isRepeated()) {
+              fieldList.removeLast();
+            }
+            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
+              arrayFieldList.add(fieldList.getLast());
+            }
+            break;
+          case VALUE_NUMBER_FLOAT:
+            if (!fieldList.getLast().isRepeated()) {
+              fieldList.removeLast();
+            }
+            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
+              arrayFieldList.add(fieldList.getLast());
+            }
+            break;
+          case VALUE_TRUE:
+            if (!fieldList.getLast().isRepeated()) {
+              fieldList.removeLast();
+            }
+            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
+              arrayFieldList.add(fieldList.getLast());
+            }
+            break;
+          case VALUE_FALSE:
+            if (!fieldList.getLast().isRepeated()) {
+              fieldList.removeLast();
+            }
+            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
+              arrayFieldList.add(fieldList.getLast());
+            }
+            break;
+          case VALUE_NULL:
+            if (!fieldList.getLast().isRepeated()) {
+              fieldList.removeLast();
+            }
+            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
+              arrayFieldList.add(fieldList.getLast());
+            }
+            break;
         }
-        System.out.println(fieldList.toString());
-        break;
-      case END_OBJECT:
-        lastClosedFieldList = new LinkedList<>(fieldList);
-        if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
-          fieldList.removeLast();
-        }
-        System.out.println(fieldList.toString());
-        break;
-      case END_ARRAY:
-        lastClosedFieldList = new LinkedList<>(fieldList);
-        if (!fieldList.isEmpty()) {
-          fieldList.removeLast();
-        }
-        System.out.println(fieldList.toString());
-        break;
-      case VALUE_STRING:
-        setRepetitionLevel();
-        try {
-          return new Record<String>(new Path(fieldList), parser.getValueAsString(), repetitionLevel, getDefinitionLevel());
-        }
-        finally {
-          lastClosedFieldList = new LinkedList<>(fieldList);
-          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
-            fieldList.removeLast();
-          }
-        }
-      case VALUE_NUMBER_INT:
-        setRepetitionLevel();
-        try {
-          return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), repetitionLevel, getDefinitionLevel());
-        }
-        finally {
-          lastClosedFieldList = new LinkedList<>(fieldList);
-          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
-            fieldList.removeLast();
-          }
-        }
-      case VALUE_NUMBER_FLOAT:
-        setRepetitionLevel();
-        try {
-          return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), repetitionLevel, getDefinitionLevel());
-        }
-        finally {
-          lastClosedFieldList = new LinkedList<>(fieldList);
-          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
-            fieldList.removeLast();
-          }
-        }
-      case VALUE_TRUE:
-        setRepetitionLevel();
-        try {
-          return new Record<Boolean>(new Path(fieldList), true, repetitionLevel, getDefinitionLevel());
-        }
-        finally {
-          lastClosedFieldList = new LinkedList<>(fieldList);
-          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
-            fieldList.removeLast();
-          }
-        }
-      case VALUE_FALSE:
-        setRepetitionLevel();
-        try {
-          return new Record<Boolean>(new Path(fieldList), false, repetitionLevel, getDefinitionLevel());
-        }
-        finally {
-          lastClosedFieldList = new LinkedList<>(fieldList);
-          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
-            fieldList.removeLast();
-          }
-        }
-      case VALUE_NULL:
-        setRepetitionLevel();
-        try {
-          return new Record<Void>(new Path(fieldList), null, repetitionLevel, getDefinitionLevel());
-        }
-        finally {
-          lastClosedFieldList = new LinkedList<>(fieldList);
-          if (!(fieldList.isEmpty() || fieldList.getLast().isRepeated())) {
-            fieldList.removeLast();
-          }
-        }
-      default:
-        throw new UnknownSwitchCaseException(token.name());
+      }
     }
 
     return null;
@@ -215,40 +215,17 @@ public class JsonConverter extends Converter {
     return definitionLevel;
   }
 
-  private void appendField (String name)
+  private Field getField (String name)
     throws ProcessException {
 
     PathKey pathKey;
     Field field;
 
     if ((field = fieldMap.get(pathKey = new PathKey(new Path(fieldList), name))) == null) {
-      fieldMap.put(pathKey, field = new Field(counter++, name));
+      fieldMap.put(pathKey, field = new Field(nextId(), name));
     }
-    fieldList.add(field);
-  }
 
-  private void setRepetitionLevel () {
-
-    if ((lastClosedFieldList != null) && (fieldList.size() == lastClosedFieldList.size())) {
-
-      Iterator<Field> fieldIter = fieldList.iterator();
-      Iterator<Field> lastClosedFieldIter = lastClosedFieldList.iterator();
-      boolean matched = true;
-
-      while (fieldIter.hasNext()) {
-        if (!fieldIter.next().equals(lastClosedFieldIter.next())) {
-          matched = false;
-          break;
-        }
-      }
-
-      if (matched) {
-        repetitionLevel = fieldList.size();
-      }
-      else {
-        repetitionLevel = 0;
-      }
-    }
+    return field;
   }
 
   private class PathKey {
