@@ -72,12 +72,14 @@ public class Record<T> {
     boolean first = true;
 
     for (Field field : path) {
-      if (!first) {
-        keyBuilder.append('.');
-      }
-      first = false;
+      if (!field.isRoot()) {
+        if (!first) {
+          keyBuilder.append('.');
+        }
+        first = false;
 
-      keyBuilder.append(field.getName());
+        keyBuilder.append(field.getName());
+      }
     }
 
     return keyBuilder.toString();

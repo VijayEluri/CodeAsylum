@@ -43,6 +43,7 @@ public class JsonConverter extends Converter {
   private LinkedList<Field> fieldList = new LinkedList<>();
   private LinkedList<Field> arrayFieldList = new LinkedList<>();
   private Record<?> nextRecord;
+  private JsonToken lastToken;
 
   public JsonConverter (String json)
     throws IOException, ProcessException {
@@ -109,7 +110,7 @@ public class JsonConverter extends Converter {
             }
             break;
           case START_ARRAY:
-            if (fieldList.isEmpty() || fieldList.getLast().isRepeated()) {
+            if (fieldList.isEmpty() || (lastToken.equals(JsonToken.START_ARRAY))) {
               fieldList.add(getField("array").setRepeated(true));
             }
             else {
@@ -117,89 +118,66 @@ public class JsonConverter extends Converter {
             }
             break;
           case END_OBJECT:
-            if (!fieldList.getLast().isRepeated()) {
-              fieldList.removeLast();
-            }
-            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
-              arrayFieldList.add(fieldList.getLast());
-            }
+            closeField();
             break;
           case END_ARRAY:
-              if ((!arrayFieldList.isEmpty()) && (arrayFieldList.getLast().equals(fieldList.removeLast()))) {
-                arrayFieldList.removeLast();
-              }
+            if ((!arrayFieldList.isEmpty()) && (arrayFieldList.getLast().equals(fieldList.removeLast()))) {
+              arrayFieldList.removeLast();
+            }
             break;
           case VALUE_STRING:
-            return new Record<String>(new Path(fieldList), parser.getValueAsString(), arrayFieldList.size(), getDefinitionLevel());
+            return new Record<String>(new Path(fieldList), parser.getValueAsString(), getRepetitionLevel(), getDefinitionLevel());
           case VALUE_NUMBER_INT:
-            return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), arrayFieldList.size(), getDefinitionLevel());
+            return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), getRepetitionLevel(), getDefinitionLevel());
           case VALUE_NUMBER_FLOAT:
-            return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), arrayFieldList.size(), getDefinitionLevel());
+            return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), getRepetitionLevel(), getDefinitionLevel());
           case VALUE_TRUE:
-            return new Record<Boolean>(new Path(fieldList), true, arrayFieldList.size(), getDefinitionLevel());
+            return new Record<Boolean>(new Path(fieldList), true, getRepetitionLevel(), getDefinitionLevel());
           case VALUE_FALSE:
-            return new Record<Boolean>(new Path(fieldList), false, arrayFieldList.size(), getDefinitionLevel());
+            return new Record<Boolean>(new Path(fieldList), false, getRepetitionLevel(), getDefinitionLevel());
           case VALUE_NULL:
-            return new Record<Void>(new Path(fieldList), null, arrayFieldList.size(), getDefinitionLevel());
+            return new Record<Void>(new Path(fieldList), null, getRepetitionLevel(), getDefinitionLevel());
           default:
             throw new UnknownSwitchCaseException(token.name());
         }
       }
       finally {
-        switch (token) {
-          case VALUE_STRING:
-            if (!fieldList.getLast().isRepeated()) {
-              fieldList.removeLast();
-            }
-            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
-              arrayFieldList.add(fieldList.getLast());
-            }
-            break;
-          case VALUE_NUMBER_INT:
-            if (!fieldList.getLast().isRepeated()) {
-              fieldList.removeLast();
-            }
-            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
-              arrayFieldList.add(fieldList.getLast());
-            }
-            break;
-          case VALUE_NUMBER_FLOAT:
-            if (!fieldList.getLast().isRepeated()) {
-              fieldList.removeLast();
-            }
-            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
-              arrayFieldList.add(fieldList.getLast());
-            }
-            break;
-          case VALUE_TRUE:
-            if (!fieldList.getLast().isRepeated()) {
-              fieldList.removeLast();
-            }
-            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
-              arrayFieldList.add(fieldList.getLast());
-            }
-            break;
-          case VALUE_FALSE:
-            if (!fieldList.getLast().isRepeated()) {
-              fieldList.removeLast();
-            }
-            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
-              arrayFieldList.add(fieldList.getLast());
-            }
-            break;
-          case VALUE_NULL:
-            if (!fieldList.getLast().isRepeated()) {
-              fieldList.removeLast();
-            }
-            else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
-              arrayFieldList.add(fieldList.getLast());
-            }
-            break;
+        lastToken = token;
+        if (token.isScalarValue()) {
+          closeField();
         }
       }
     }
 
     return null;
+  }
+
+  private void closeField () {
+
+    if (!fieldList.getLast().isRepeated()) {
+      fieldList.removeLast();
+    }
+    else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
+      arrayFieldList.add(fieldList.getLast());
+    }
+  }
+
+  private int getRepetitionLevel () {
+
+    int repetitionLevel = 0;
+
+    if (!arrayFieldList.isEmpty()) {
+      for (Field field : fieldList) {
+        if (field.isRepeated()) {
+          repetitionLevel++;
+        }
+        if (field.equals(arrayFieldList.getLast())) {
+          break;
+        }
+      }
+    }
+
+    return repetitionLevel;
   }
 
   private int getDefinitionLevel () {

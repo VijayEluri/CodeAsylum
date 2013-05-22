@@ -88,6 +88,7 @@ public class Path implements Iterable<Field> {
         pathBuilder.append(',');
       }
       first = false;
+
       pathBuilder.append(field);
     }
 
