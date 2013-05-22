@@ -200,7 +200,7 @@ public class JsonConverter extends Converter {
     Field field;
 
     if ((field = fieldMap.get(pathKey = new PathKey(new Path(fieldList), name))) == null) {
-      fieldMap.put(pathKey, field = new Field(nextId(), name));
+      fieldMap.put(pathKey, field = new Field(nextId(), name).setOptional(true));
     }
 
     return field;
