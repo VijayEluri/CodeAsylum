@@ -35,7 +35,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
 
-public class JsonConverter extends Converter {
+public class JsonDisassembler extends Disassembler {
 
   private static final JsonFactory JSON_FACTORY = new JsonFactory();
   private final JsonParser parser;
@@ -45,7 +45,7 @@ public class JsonConverter extends Converter {
   private Record<?> nextRecord;
   private JsonToken lastToken;
 
-  public JsonConverter (String json)
+  public JsonDisassembler (String json)
     throws IOException, ProcessException {
 
     try {

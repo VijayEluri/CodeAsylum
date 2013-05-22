@@ -28,11 +28,11 @@ package com.codeasylum.bank.core.store.indigenous;
 
 public class RecordShredder {
 
-  private final Converter converter;
+  private final Disassembler disassembler;
 
-  public RecordShredder (Converter converter) {
+  public RecordShredder (Disassembler disassembler) {
 
-    this.converter = converter;
+    this.disassembler = disassembler;
   }
 
   public static void main (String... args)
@@ -98,15 +98,15 @@ public class RecordShredder {
       "    ]\n" +
       "}";
 
-    RecordShredder r = new RecordShredder(new JsonConverter(bar));
+    RecordShredder r = new RecordShredder(new JsonDisassembler(bar));
 
     r.shred();
   }
 
   public void shred () {
 
-    while (converter.hasNext()) {
-      System.out.println(converter.next());
+    while (disassembler.hasNext()) {
+      System.out.println(disassembler.next());
     }
   }
 }

@@ -28,7 +28,7 @@ package com.codeasylum.bank.core.store.indigenous;
 
 import java.util.Iterator;
 
-public abstract class Converter implements Iterator<Record<?>> {
+public abstract class Disassembler implements Iterator<Record<?>> {
 
   private int counter = 0;
 
