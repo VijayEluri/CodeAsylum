@@ -69,13 +69,15 @@ public class Schema {
 
   public boolean closeIfNotRepeated () {
 
-    if (current != null) {
+    if (current == null) {
 
-      if (current.getField().isRepeated()) {
-        current = current.getParent();
+      return true;
+    }
 
-        return true;
-      }
+    if (!current.getField().isRepeated()) {
+      current = current.getParent();
+
+      return true;
     }
 
     return false;
