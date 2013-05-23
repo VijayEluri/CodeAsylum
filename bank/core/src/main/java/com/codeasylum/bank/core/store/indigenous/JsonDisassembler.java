@@ -27,8 +27,6 @@
 package com.codeasylum.bank.core.store.indigenous;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
 import com.codeasylum.bank.core.ProcessException;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -38,10 +36,9 @@ import org.smallmind.nutsnbolts.lang.UnknownSwitchCaseException;
 public class JsonDisassembler extends Disassembler {
 
   private static final JsonFactory JSON_FACTORY = new JsonFactory();
+  private final Schema schema = new Schema();
+  private final RepetitionTracker repetitionTracker = new RepetitionTracker();
   private final JsonParser parser;
-  private final HashMap<PathKey, Field> fieldMap = new HashMap<>();
-  private LinkedList<Field> fieldList = new LinkedList<>();
-  private LinkedList<Field> arrayFieldList = new LinkedList<>();
   private Record<?> nextRecord;
   private JsonToken lastToken;
 
@@ -56,6 +53,12 @@ public class JsonDisassembler extends Disassembler {
     }
 
     nextRecord = findNext();
+  }
+
+  @Override
+  public Schema getSchema () {
+
+    return schema;
   }
 
   @Override
@@ -99,44 +102,37 @@ public class JsonDisassembler extends Disassembler {
               throw new ProcessException("Use of reserved character '.' within field name(%s)", name);
             }
 
-            fieldList.add(getField(name));
+            schema.addChildField(getField(name));
             break;
           case START_OBJECT:
-            if (fieldList.isEmpty()) {
-              fieldList.add(Field.root());
-            }
-            else {
-              fieldList.getLast().setGroup(true);
-            }
+            schema.setCurrentFieldAsGroup();
             break;
           case START_ARRAY:
-            if (fieldList.isEmpty() || (lastToken.equals(JsonToken.START_ARRAY))) {
-              fieldList.add(getField("array").setRepeated(true));
+            if (schema.isCurrentlyRoot() || (lastToken.equals(JsonToken.START_ARRAY))) {
+              schema.addChildField(getField("array").setRepeated(true));
             }
             else {
-              fieldList.getLast().setRepeated(true);
+              schema.setCurrentFieldAsRepeated();
             }
             break;
           case END_OBJECT:
             closeField();
             break;
           case END_ARRAY:
-            if ((!arrayFieldList.isEmpty()) && (arrayFieldList.getLast().equals(fieldList.removeLast()))) {
-              arrayFieldList.removeLast();
-            }
+            repetitionTracker.endIfLast(schema.close());
             break;
           case VALUE_STRING:
-            return new Record<String>(new Path(fieldList), parser.getValueAsString(), getRepetitionLevel(), getDefinitionLevel());
+            return new Record<String>(schema.getCurrentPath(repetitionTracker), parser.getValueAsString());
           case VALUE_NUMBER_INT:
-            return new Record<Long>(new Path(fieldList), parser.getValueAsLong(), getRepetitionLevel(), getDefinitionLevel());
+            return new Record<Long>(schema.getCurrentPath(repetitionTracker), parser.getValueAsLong());
           case VALUE_NUMBER_FLOAT:
-            return new Record<Double>(new Path(fieldList), parser.getValueAsDouble(), getRepetitionLevel(), getDefinitionLevel());
+            return new Record<Double>(schema.getCurrentPath(repetitionTracker), parser.getValueAsDouble());
           case VALUE_TRUE:
-            return new Record<Boolean>(new Path(fieldList), true, getRepetitionLevel(), getDefinitionLevel());
+            return new Record<Boolean>(schema.getCurrentPath(repetitionTracker), true);
           case VALUE_FALSE:
-            return new Record<Boolean>(new Path(fieldList), false, getRepetitionLevel(), getDefinitionLevel());
+            return new Record<Boolean>(schema.getCurrentPath(repetitionTracker), false);
           case VALUE_NULL:
-            return new Record<Void>(new Path(fieldList), null, getRepetitionLevel(), getDefinitionLevel());
+            return new Record<Void>(schema.getCurrentPath(repetitionTracker), null);
           default:
             throw new UnknownSwitchCaseException(token.name());
         }
@@ -154,89 +150,20 @@ public class JsonDisassembler extends Disassembler {
 
   private void closeField () {
 
-    if (!fieldList.getLast().isRepeated()) {
-      fieldList.removeLast();
+    if (!schema.closeIfNotRepeated()) {
+      repetitionTracker.addIfNotLast(schema.getCurrentField());
     }
-    else if (arrayFieldList.isEmpty() || (!arrayFieldList.getLast().equals(fieldList.getLast()))) {
-      arrayFieldList.add(fieldList.getLast());
-    }
-  }
-
-  private int getRepetitionLevel () {
-
-    int repetitionLevel = 0;
-
-    if (!arrayFieldList.isEmpty()) {
-      for (Field field : fieldList) {
-        if (field.isRepeated()) {
-          repetitionLevel++;
-        }
-        if (field.equals(arrayFieldList.getLast())) {
-          break;
-        }
-      }
-    }
-
-    return repetitionLevel;
-  }
-
-  private int getDefinitionLevel () {
-
-    int definitionLevel = 0;
-
-    for (Field field : fieldList) {
-      if (field.isOptional() || field.isRepeated()) {
-        definitionLevel++;
-      }
-    }
-
-    return definitionLevel;
   }
 
   private Field getField (String name)
     throws ProcessException {
 
-    PathKey pathKey;
     Field field;
 
-    if ((field = fieldMap.get(pathKey = new PathKey(new Path(fieldList), name))) == null) {
-      fieldMap.put(pathKey, field = new Field(nextId(), name).setOptional(true));
+    if ((field = schema.getChildFieldWithName(name)) == null) {
+      field = new Field(nextId(), name).setOptional(true);
     }
 
     return field;
-  }
-
-  private class PathKey {
-
-    private Path path;
-    private String name;
-
-    private PathKey (Path path, String name) {
-
-      this.path = path;
-      this.name = name;
-    }
-
-    private Path getPath () {
-
-      return path;
-    }
-
-    private String getName () {
-
-      return name;
-    }
-
-    @Override
-    public int hashCode () {
-
-      return path.hashCode() ^ name.hashCode();
-    }
-
-    @Override
-    public boolean equals (Object obj) {
-
-      return (obj instanceof PathKey) && ((PathKey)obj).getPath().equals(getPath()) && ((PathKey)obj).getName().equals(getName());
-    }
   }
 }

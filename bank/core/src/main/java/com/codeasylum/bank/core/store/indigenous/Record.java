@@ -30,15 +30,11 @@ public class Record<T> {
 
   private final Path path;
   private final T value;
-  private final int repetitionLevel;
-  private final int definitionLevel;
 
-  public Record (Path path, T value, int repetitionLevel, int definitionLevel) {
+  public Record (Path path, T value) {
 
     this.path = path;
     this.value = value;
-    this.repetitionLevel = repetitionLevel;
-    this.definitionLevel = definitionLevel;
   }
 
   public int getDepth () {
@@ -56,30 +52,18 @@ public class Record<T> {
     return value;
   }
 
-  public int getRepetitionLevel () {
-
-    return repetitionLevel;
-  }
-
-  public int getDefinitionLevel () {
-
-    return definitionLevel;
-  }
-
   public String getKey () {
 
     StringBuilder keyBuilder = new StringBuilder();
     boolean first = true;
 
     for (Field field : path) {
-      if (!field.isRoot()) {
-        if (!first) {
-          keyBuilder.append('.');
-        }
-        first = false;
-
-        keyBuilder.append(field.getName());
+      if (!first) {
+        keyBuilder.append('.');
       }
+      first = false;
+
+      keyBuilder.append(field.getName());
     }
 
     return keyBuilder.toString();
@@ -88,6 +72,6 @@ public class Record<T> {
   @Override
   public String toString () {
 
-    return new StringBuilder("[key=").append(getKey()).append(", value=").append(value).append(", repetitionLevel=").append(repetitionLevel).append(", definitionLevel=").append(definitionLevel).append(']').toString();
+    return new StringBuilder("[key=").append(getKey()).append(", value=").append(value).append(", repetitionLevel=").append(path.getRepetitionLevel()).append(", definitionLevel=").append(path.getDefinitionLevel()).append(']').toString();
   }
 }

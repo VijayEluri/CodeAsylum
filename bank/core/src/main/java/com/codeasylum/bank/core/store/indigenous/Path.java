@@ -32,19 +32,36 @@ import java.util.List;
 
 public class Path implements Iterable<Field> {
 
-  private static final Field[] NO_FIELDS = new Field[0];
   private final Field[] fields;
+  private final int repetitionLevel;
+  private final int definitionLevel;
 
-  public Path () {
+  public Path (List<Field> fieldList, RepetitionTracker repetitionTracker) {
 
-    fields = NO_FIELDS;
-  }
-
-  public Path (List<Field> fieldList) {
+    boolean mightRepeat = !repetitionTracker.isEmpty();
+    int repeated = 0;
+    int defined = 0;
+    int index = 0;
 
     fields = new Field[fieldList.size()];
 
-    fieldList.toArray(fields);
+    for (Field field : fieldList) {
+      if (field.isOptional() || field.isRepeated()) {
+        defined++;
+      }
+      if (mightRepeat) {
+        if (field.isRepeated()) {
+          repeated++;
+        }
+        if (field.equals(repetitionTracker.getLast())) {
+          mightRepeat = false;
+        }
+      }
+      fields[index++] = field;
+    }
+
+    repetitionLevel = repeated;
+    definitionLevel = defined;
   }
 
   public int size () {
@@ -57,18 +74,14 @@ public class Path implements Iterable<Field> {
     return fields;
   }
 
-  public int repetitionDepth (Path path) {
+  public int getRepetitionLevel () {
 
-    int index = 0;
+    return repetitionLevel;
+  }
 
-    while ((index < size()) && (index < path.size())) {
-      if (fields[index].getId() != path.getFields()[index].getId()) {
-        break;
-      }
-      index++;
-    }
+  public int getDefinitionLevel () {
 
-    return index;
+    return definitionLevel;
   }
 
   @Override

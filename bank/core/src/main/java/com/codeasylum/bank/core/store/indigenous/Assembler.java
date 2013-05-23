@@ -24,8 +24,8 @@
  * alone subject to any of the requirements of the GNU Affero GPL
  * version 3.
  */
-package com.codeasylum.bank.core;
+package com.codeasylum.bank.core.store.indigenous;
 
-public interface Schema {
+public class Assembler {
 
 }

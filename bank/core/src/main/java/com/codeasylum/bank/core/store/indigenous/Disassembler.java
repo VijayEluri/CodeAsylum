@@ -32,6 +32,8 @@ public abstract class Disassembler implements Iterator<Record<?>> {
 
   private int counter = 0;
 
+  public abstract Schema getSchema ();
+
   public int nextId () {
 
     return ++counter;

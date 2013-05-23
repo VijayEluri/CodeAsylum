@@ -26,7 +26,6 @@
  */
 package com.codeasylum.bank.core.store.indigenous;
 
-public class AssemblyAutomaton {
-
+public class AssemblerFactory {
 
 }

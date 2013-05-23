@@ -26,8 +26,38 @@
  */
 package com.codeasylum.bank.core.store.indigenous;
 
-public class AssemblyAutomatonFactory {
+import java.util.LinkedList;
 
+public class RepetitionTracker {
 
+  private LinkedList<Field> fields = new LinkedList<>();
 
+  public boolean isEmpty () {
+
+    return fields.isEmpty();
+  }
+
+  public Field getLast () {
+
+    if (!fields.isEmpty()) {
+
+      return fields.getLast();
+    }
+
+    return null;
+  }
+
+  public void endIfLast (Field field) {
+
+    if ((!fields.isEmpty()) && (fields.getLast().equals(field))) {
+      fields.removeLast();
+    }
+  }
+
+  public void addIfNotLast (Field field) {
+
+    if ((field != null) && fields.isEmpty() || (!fields.getLast().equals(field))) {
+      fields.add(field);
+    }
+  }
 }
