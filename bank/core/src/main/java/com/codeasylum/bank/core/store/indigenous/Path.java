@@ -26,24 +26,21 @@
  */
 package com.codeasylum.bank.core.store.indigenous;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-public class Path implements Iterable<Field> {
+public class Path {
 
-  private final Field[] fields;
+  private final String key;
   private final int repetitionLevel;
   private final int definitionLevel;
 
   public Path (List<Field> fieldList, RepetitionTracker repetitionTracker) {
 
+    StringBuilder keyBuilder = new StringBuilder();
+    boolean first = true;
     boolean mightRepeat = !repetitionTracker.isEmpty();
     int repeated = 0;
     int defined = 0;
-    int index = 0;
-
-    fields = new Field[fieldList.size()];
 
     for (Field field : fieldList) {
       if (field.isOptional() || field.isRepeated()) {
@@ -57,21 +54,22 @@ public class Path implements Iterable<Field> {
           mightRepeat = false;
         }
       }
-      fields[index++] = field;
+
+      if (!first) {
+        keyBuilder.append('.');
+      }
+      first = false;
+      keyBuilder.append(field.getName());
     }
 
+    key = keyBuilder.toString();
     repetitionLevel = repeated;
     definitionLevel = defined;
   }
 
-  public int size () {
+  public String getKey () {
 
-    return fields.length;
-  }
-
-  public Field[] getFields () {
-
-    return fields;
+    return key;
   }
 
   public int getRepetitionLevel () {
@@ -82,64 +80,5 @@ public class Path implements Iterable<Field> {
   public int getDefinitionLevel () {
 
     return definitionLevel;
-  }
-
-  @Override
-  public Iterator<Field> iterator () {
-
-    return new FieldIterator();
-  }
-
-  @Override
-  public String toString () {
-
-    StringBuilder pathBuilder = new StringBuilder(Path.class.getSimpleName()).append('[');
-    boolean first = true;
-
-    for (Field field : fields) {
-      if (!first) {
-        pathBuilder.append(',');
-      }
-      first = false;
-
-      pathBuilder.append(field);
-    }
-
-    return pathBuilder.append(']').toString();
-  }
-
-  @Override
-  public int hashCode () {
-
-    return Arrays.hashCode(fields);
-  }
-
-  @Override
-  public boolean equals (Object obj) {
-
-    return (obj instanceof Path) && Arrays.equals(getFields(), ((Path)obj).getFields());
-  }
-
-  public class FieldIterator implements Iterator<Field> {
-
-    int index = 0;
-
-    @Override
-    public boolean hasNext () {
-
-      return index < fields.length;
-    }
-
-    @Override
-    public Field next () {
-
-      return fields[index++];
-    }
-
-    @Override
-    public void remove () {
-
-      throw new UnsupportedOperationException();
-    }
   }
 }

@@ -26,6 +26,6 @@
  */
 package com.codeasylum.bank.core.store.indigenous;
 
-public class Assembler {
+public abstract class Assembler {
 
 }

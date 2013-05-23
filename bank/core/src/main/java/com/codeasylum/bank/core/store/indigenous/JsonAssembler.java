@@ -26,6 +26,6 @@
  */
 package com.codeasylum.bank.core.store.indigenous;
 
-public class AssemblerFactory {
+public class JsonAssembler extends Assembler  {
 
 }

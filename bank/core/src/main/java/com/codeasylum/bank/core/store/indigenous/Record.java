@@ -37,11 +37,6 @@ public class Record<T> {
     this.value = value;
   }
 
-  public int getDepth () {
-
-    return path.size();
-  }
-
   public Path getPath () {
 
     return path;
@@ -52,26 +47,9 @@ public class Record<T> {
     return value;
   }
 
-  public String getKey () {
-
-    StringBuilder keyBuilder = new StringBuilder();
-    boolean first = true;
-
-    for (Field field : path) {
-      if (!first) {
-        keyBuilder.append('.');
-      }
-      first = false;
-
-      keyBuilder.append(field.getName());
-    }
-
-    return keyBuilder.toString();
-  }
-
   @Override
   public String toString () {
 
-    return new StringBuilder("[key=").append(getKey()).append(", value=").append(value).append(", repetitionLevel=").append(path.getRepetitionLevel()).append(", definitionLevel=").append(path.getDefinitionLevel()).append(']').toString();
+    return new StringBuilder("[key=").append(path.getKey()).append(", value=").append(value).append(", repetitionLevel=").append(path.getRepetitionLevel()).append(", definitionLevel=").append(path.getDefinitionLevel()).append(']').toString();
   }
 }
