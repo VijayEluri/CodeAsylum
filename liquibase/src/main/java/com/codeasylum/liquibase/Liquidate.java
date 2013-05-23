@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
+ * Copyright (c) 2007, 2008, 2009, 2010, 2011, 10212, 2013 David Berkman
  * 
  * This file is part of the CodeAsylum Code Project.
  * 
@@ -61,7 +61,7 @@ import org.smallmind.nutsnbolts.layout.Constraint;
 import org.smallmind.nutsnbolts.layout.Gap;
 import org.smallmind.nutsnbolts.layout.Justification;
 import org.smallmind.nutsnbolts.layout.ParallelBox;
-import org.smallmind.nutsnbolts.layout.SequentialBox;
+import org.smallmind.nutsnbolts.layout.SerialBox;
 import org.smallmind.nutsnbolts.util.EnumerationIterator;
 import org.smallmind.nutsnbolts.util.StringUtilities;
 import org.smallmind.persistence.sql.DriverManagerDataSource;
@@ -81,7 +81,6 @@ import org.xml.sax.SAXException;
 public class Liquidate extends JFrame implements ActionListener, ItemListener, DocumentListener {
 
   private static final ImageIcon BROWSE_ICON = new ImageIcon(ClassLoader.getSystemResource("com/codeasylum/liquibase/folder_view_16.png"));
-
   private ExtendedProfileLoader extensionLoader;
   private LiquidateConfig config;
   private MenuDelegateFactory menuDelegateFactory;
@@ -105,9 +104,9 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
 
     ParaboxLayoutManager layout;
     ParallelBox goalHorizontalBox;
-    SequentialBox sourceHorizontalBox;
+    SerialBox sourceHorizontalBox;
     ParallelBox sourceVerticalBox;
-    SequentialBox goalVerticalBox;
+    SerialBox goalVerticalBox;
     JSeparator buttonSeparator;
     JRadioButton[] sourceButtons;
     JRadioButton[] goalButtons;
@@ -243,6 +242,45 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
     setSize(new Dimension(((int)getLayout().preferredLayoutSize(this).getWidth()) + 150, ((int)getLayout().preferredLayoutSize(this).getHeight()) + 50));
     setResizable(false);
     setLocationByPlatform(true);
+  }
+
+  public static void main (String... args) {
+
+    ExtendedProfileLoader extensionLoader = null;
+    boolean init = false;
+
+    try {
+      extensionLoader = new ExtendedProfileLoader();
+      init = true;
+    }
+    catch (Exception exception) {
+      JavaErrorDialog.showJavaErrorDialog(null, null, exception);
+    }
+
+    if (init) {
+
+      final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("com/codeasylum/liquibase/liquidate.xml");
+
+      Liquidate liquidate = applicationContext.getBean("liquidate", Liquidate.class);
+
+      try {
+        liquidate.addWindowListener(new WindowAdapter() {
+
+          @Override
+          public void windowClosed (WindowEvent windowEvent) {
+
+            applicationContext.close();
+
+          }
+        });
+
+        liquidate.init(extensionLoader).setVisible(true);
+      }
+      catch (Exception exception) {
+        JavaErrorDialog.showJavaErrorDialog(liquidate, liquidate, exception);
+        liquidate.dispose();
+      }
+    }
   }
 
   private Liquidate init (ExtendedProfileLoader extensionLoader)
@@ -492,44 +530,5 @@ public class Liquidate extends JFrame implements ActionListener, ItemListener, D
   public synchronized void setMenuDelegateFactory (MenuDelegateFactory menuDelegateFactory) {
 
     this.menuDelegateFactory = menuDelegateFactory;
-  }
-
-  public static void main (String... args) {
-
-    ExtendedProfileLoader extensionLoader = null;
-    boolean init = false;
-
-    try {
-      extensionLoader = new ExtendedProfileLoader();
-      init = true;
-    }
-    catch (Exception exception) {
-      JavaErrorDialog.showJavaErrorDialog(null, null, exception);
-    }
-
-    if (init) {
-
-      final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("com/codeasylum/liquibase/liquidate.xml");
-
-      Liquidate liquidate = applicationContext.getBean("liquidate", Liquidate.class);
-
-      try {
-        liquidate.addWindowListener(new WindowAdapter() {
-
-          @Override
-          public void windowClosed (WindowEvent windowEvent) {
-
-            applicationContext.close();
-
-          }
-        });
-
-        liquidate.init(extensionLoader).setVisible(true);
-      }
-      catch (Exception exception) {
-        JavaErrorDialog.showJavaErrorDialog(liquidate, liquidate, exception);
-        liquidate.dispose();
-      }
-    }
   }
 }

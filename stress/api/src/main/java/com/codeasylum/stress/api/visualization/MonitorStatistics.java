@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2008, 2009, 2010, 2011 David Berkman
+ * Copyright (c) 2007, 2008, 2009, 2010, 2011, 10212, 2013 David Berkman
  * 
  * This file is part of the CodeAsylum Code Project.
  * 
@@ -29,12 +29,14 @@ package com.codeasylum.stress.api.visualization;
 import java.util.concurrent.TimeUnit;
 import org.smallmind.instrument.Clocks;
 import org.smallmind.instrument.Meter;
+import org.smallmind.instrument.MeterImpl;
 import org.smallmind.instrument.Speedometer;
+import org.smallmind.instrument.SpeedometerImpl;
 
 public class MonitorStatistics {
 
-  private Speedometer responseSpeedometer = new Speedometer(1, TimeUnit.SECONDS, Clocks.EPOCH.getClock());
-  private Meter failureMeter = new Meter(1, TimeUnit.SECONDS, Clocks.EPOCH.getClock());
+  private Speedometer responseSpeedometer = new SpeedometerImpl(1, TimeUnit.SECONDS, Clocks.EPOCH.getClock());
+  private Meter failureMeter = new MeterImpl(1, TimeUnit.SECONDS, Clocks.EPOCH.getClock());
 
   public synchronized void reset () {
 

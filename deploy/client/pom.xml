@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.codeasylum</groupId>
     <artifactId>codeasylum-deploy</artifactId>
-    <version>1.0.9</version>
+    <version>1.2.0</version>
   </parent>
   <artifactId>deploy-client</artifactId>
   <packaging>jar</packaging>
