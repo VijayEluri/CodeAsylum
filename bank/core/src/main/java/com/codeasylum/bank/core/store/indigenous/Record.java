@@ -30,11 +30,14 @@ public class Record<T> {
 
   private final Path path;
   private final T value;
+  private final String s;
 
-  public Record (Path path, T value) {
+  public Record (Schema schema, Nest nest, T value) {
 
-    this.path = path;
     this.value = value;
+
+    path = schema.getCurrentPath();
+    s = nest.toString();
   }
 
   public Path getPath () {
@@ -50,6 +53,6 @@ public class Record<T> {
   @Override
   public String toString () {
 
-    return new StringBuilder("[key=").append(path.getKey()).append(", value=").append(value).append(", repetitionLevel=").append(path.getRepetitionLevel()).append(", definitionLevel=").append(path.getDefinitionLevel()).append(']').toString();
+    return new StringBuilder("[path=").append(path.getKey()).append(", s=").append(s).append(", value=").append(value).append(']').toString();
   }
 }

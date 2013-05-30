@@ -37,7 +37,7 @@ public class JsonDisassembler extends Disassembler {
 
   private static final JsonFactory JSON_FACTORY = new JsonFactory();
   private final Schema schema = new Schema();
-  private final RepetitionTracker repetitionTracker = new RepetitionTracker();
+  private final Nest nest = new Nest();
   private final JsonParser parser;
   private Record<?> nextRecord;
   private JsonToken lastToken;
@@ -102,14 +102,14 @@ public class JsonDisassembler extends Disassembler {
               throw new ProcessException("Use of reserved character '.' within field name(%s)", name);
             }
 
-            schema.addChildField(getField(name));
+            nest.push(schema.addChildField(getField(name)));
             break;
           case START_OBJECT:
             schema.setCurrentFieldAsGroup();
             break;
           case START_ARRAY:
             if (schema.isCurrentlyRoot() || (lastToken.equals(JsonToken.START_ARRAY))) {
-              schema.addChildField(getField("array").setRepeated(true));
+              nest.push(schema.addChildField(getField("array").setRepeated(true)));
             }
             else {
               schema.setCurrentFieldAsRepeated();
@@ -119,20 +119,21 @@ public class JsonDisassembler extends Disassembler {
             closeField();
             break;
           case END_ARRAY:
-            repetitionTracker.endIfLast(schema.close());
+            schema.close();
+            nest.pop();
             break;
           case VALUE_STRING:
-            return new Record<String>(schema.getCurrentPath(repetitionTracker), parser.getValueAsString());
+            return new Record<String>(schema, nest, parser.getValueAsString());
           case VALUE_NUMBER_INT:
-            return new Record<Long>(schema.getCurrentPath(repetitionTracker), parser.getValueAsLong());
+            return new Record<Long>(schema, nest, parser.getValueAsLong());
           case VALUE_NUMBER_FLOAT:
-            return new Record<Double>(schema.getCurrentPath(repetitionTracker), parser.getValueAsDouble());
+            return new Record<Double>(schema, nest, parser.getValueAsDouble());
           case VALUE_TRUE:
-            return new Record<Boolean>(schema.getCurrentPath(repetitionTracker), true);
+            return new Record<Boolean>(schema, nest, true);
           case VALUE_FALSE:
-            return new Record<Boolean>(schema.getCurrentPath(repetitionTracker), false);
+            return new Record<Boolean>(schema, nest, false);
           case VALUE_NULL:
-            return new Record<Void>(schema.getCurrentPath(repetitionTracker), null);
+            return new Record<Void>(schema, nest, null);
           default:
             throw new UnknownSwitchCaseException(token.name());
         }
@@ -150,8 +151,11 @@ public class JsonDisassembler extends Disassembler {
 
   private void closeField () {
 
-    if (!schema.closeIfNotRepeated()) {
-      repetitionTracker.addIfNotLast(schema.getCurrentField());
+    if (schema.closeIfNotRepeated()) {
+      nest.pop();
+    }
+    else {
+      nest.inc();
     }
   }
 

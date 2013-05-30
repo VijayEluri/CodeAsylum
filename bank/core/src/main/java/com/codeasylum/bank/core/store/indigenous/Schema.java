@@ -99,7 +99,7 @@ public class Schema {
     }
   }
 
-  public Path getCurrentPath (RepetitionTracker repetitionTracker) {
+  public Path getCurrentPath () {
 
     LinkedList<Field> fields = new LinkedList<>();
 
@@ -112,10 +112,10 @@ public class Schema {
       } while ((node = node.getParent()) != null);
     }
 
-    return new Path(fields, repetitionTracker);
+    return new Path(fields);
   }
 
-  public void addChildField (Field child) {
+  public Field addChildField (Field child) {
 
     if (current == null) {
       current = new Node(child);
@@ -123,6 +123,8 @@ public class Schema {
     else {
       current = current.addChildField(current, child);
     }
+
+    return current.getField();
   }
 
   public Field getChildFieldWithName (String name) {

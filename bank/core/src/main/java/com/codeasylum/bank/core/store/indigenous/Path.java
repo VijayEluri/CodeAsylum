@@ -31,30 +31,13 @@ import java.util.List;
 public class Path {
 
   private final String key;
-  private final int repetitionLevel;
-  private final int definitionLevel;
 
-  public Path (List<Field> fieldList, RepetitionTracker repetitionTracker) {
+  public Path (List<Field> fieldList) {
 
     StringBuilder keyBuilder = new StringBuilder();
     boolean first = true;
-    boolean mightRepeat = !repetitionTracker.isEmpty();
-    int repeated = 0;
-    int defined = 0;
 
     for (Field field : fieldList) {
-      if (field.isOptional() || field.isRepeated()) {
-        defined++;
-      }
-      if (mightRepeat) {
-        if (field.isRepeated()) {
-          repeated++;
-        }
-        if (field.equals(repetitionTracker.getLast())) {
-          mightRepeat = false;
-        }
-      }
-
       if (!first) {
         keyBuilder.append('.');
       }
@@ -63,22 +46,10 @@ public class Path {
     }
 
     key = keyBuilder.toString();
-    repetitionLevel = repeated;
-    definitionLevel = defined;
   }
 
   public String getKey () {
 
     return key;
-  }
-
-  public int getRepetitionLevel () {
-
-    return repetitionLevel;
-  }
-
-  public int getDefinitionLevel () {
-
-    return definitionLevel;
   }
 }
