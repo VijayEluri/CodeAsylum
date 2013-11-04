@@ -188,9 +188,9 @@
         <version>2.0</version>
       </dependency>
       <dependency>
-        <groupId>info.monitorenter</groupId>
+        <groupId>net.sf.jchart2d</groupId>
         <artifactId>jchart2d</artifactId>
-        <version>3.2.2</version>
+        <version>3.3.2</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>

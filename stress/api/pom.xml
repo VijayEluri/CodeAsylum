@@ -58,7 +58,7 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>info.monitorenter</groupId>
+      <groupId>net.sf.jchart2d</groupId>
       <artifactId>jchart2d</artifactId>
       <scope>compile</scope>
     </dependency>
