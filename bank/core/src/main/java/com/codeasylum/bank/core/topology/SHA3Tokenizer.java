@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import com.codeasylum.bank.core.Key;
+import org.smallmind.nutsnbolts.security.SHA3;
 import org.smallmind.nutsnbolts.util.Bytes;
 
 public class SHA3Tokenizer implements Tokenizer {

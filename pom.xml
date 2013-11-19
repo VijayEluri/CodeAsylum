@@ -80,7 +80,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <nexus.release.repository.id>nexus</nexus.release.repository.id>
     <nexus.release.repository.url>${nexus.server}/nexus/content/repositories/releases</nexus.release.repository.url>
-    <smallmind.version>1.6.2-SNAPSHOT</smallmind.version>
+    <smallmind.version>1.6.3-SNAPSHOT</smallmind.version>
   </properties>
 
   <modules>
