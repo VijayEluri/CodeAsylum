@@ -32,14 +32,14 @@ import java.util.Map;
 
 public class PropertyContext {
 
-  private static final InheritableThreadLocal<HashMap<String, String>> ATTRIBUTE_MAP_LOCAL = new InheritableThreadLocal<HashMap<String, String>>() {
+  private static final InheritableThreadLocal<HashMap<String, Object>> ATTRIBUTE_MAP_LOCAL = new InheritableThreadLocal<HashMap<String, Object>>() {
 
     @Override
-    protected HashMap<String, String> initialValue () {
+    protected HashMap<String, Object> initialValue () {
 
-      HashMap<String, String> propertyMap;
+      HashMap<String, Object> propertyMap;
 
-      propertyMap = new HashMap<String, String>();
+      propertyMap = new HashMap<String, Object>();
       for (Map.Entry<Object, Object> systemPropertyEntry : System.getProperties().entrySet()) {
         propertyMap.put(systemPropertyEntry.getKey().toString(), systemPropertyEntry.getValue().toString());
       }
@@ -48,13 +48,13 @@ public class PropertyContext {
     }
 
     @Override
-    protected HashMap<String, String> childValue (HashMap<String, String> parentValue) {
+    protected HashMap<String, Object> childValue (HashMap<String, Object> parentValue) {
 
-      return new HashMap<String, String>(parentValue);
+      return new HashMap<String, Object>(parentValue);
     }
   };
 
-  public static Map<String, String> getMap () {
+  public static Map<String, Object> getMap () {
 
     return ATTRIBUTE_MAP_LOCAL.get();
   }
@@ -63,7 +63,7 @@ public class PropertyContext {
 
     String value;
 
-    if ((value = ATTRIBUTE_MAP_LOCAL.get().get(key)) == null) {
+    if ((value = ATTRIBUTE_MAP_LOCAL.get().get(key).toString()) == null) {
 
       return "null".equalsIgnoreCase(matchingValue) || "false".equalsIgnoreCase(matchingValue);
     }
@@ -83,7 +83,7 @@ public class PropertyContext {
 
   public static String get (String key) {
 
-    return ATTRIBUTE_MAP_LOCAL.get().get(key);
+    return ATTRIBUTE_MAP_LOCAL.get().get(key).toString();
   }
 
   public static void remove (String key) {
